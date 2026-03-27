@@ -1,0 +1,151 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+    --radius-2xl: calc(var(--radius) + 8px);
+    --radius-3xl: calc(var(--radius) + 12px);
+    --radius-4xl: calc(var(--radius) + 16px);
+    
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+    
+    --font-sans: "Plus Jakarta Sans", sans-serif;
+}
+
+:root {
+    --radius: 0.3rem; /* Jira uses slightly sharper corners than default shadcn */
+    
+    /* Jira Light Mode Tokens */
+    --background: hsl(0 0% 100%); /* #FFFFFF */
+    --foreground: hsl(218 54% 20%); /* #172B4D - Deep blue-gray text */
+    
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(218 54% 20%);
+    
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(218 54% 20%);
+    
+    --primary: hsl(215 90% 47%); /* #0C66E4 - Atlassian Blue */
+    --primary-foreground: hsl(0 0% 100%);
+    
+    --secondary: hsl(220 14% 96%); /* #F4F5F7 - Issue gray backgrounds */
+    --secondary-foreground: hsl(218 54% 20%);
+    
+    --muted: hsl(220 14% 96%);
+    --muted-foreground: hsl(215 14% 46%); /* #626F86 - Secondary text */
+    
+    --accent: hsl(215 90% 95%); /* #E9F2FF - Hover blue */
+    --accent-foreground: hsl(215 90% 47%);
+    
+    --destructive: hsl(354 73% 43%); /* #C9372C - Jira Red */
+    --border: hsl(220 13% 91%); /* #DFE1E6 - Subtle borders */
+    --input: hsl(220 13% 91%);
+    --ring: hsl(215 90% 47%);
+    
+    --chart-1: hsl(215 90% 47%);
+    --chart-2: hsl(160 60% 36%); /* #21825B - Jira Green */
+    --chart-3: hsl(34 100% 46%); /* #E38600 - Jira Orange */
+    --chart-4: hsl(265 60% 50%); /* #8777D9 - Jira Purple */
+    --chart-5: hsl(190 90% 40%); /* #008DA6 - Jira Teal */
+    
+    --sidebar: hsl(220 14% 96%); /* #F4F5F7 */
+    --sidebar-foreground: hsl(215 14% 46%);
+    --sidebar-primary: hsl(218 54% 20%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-accent: hsl(220 13% 91%);
+    --sidebar-accent-foreground: hsl(218 54% 20%);
+    --sidebar-border: hsl(220 13% 91%);
+    --sidebar-ring: hsl(215 90% 47%);
+}
+
+.dark {
+    /* Jira Dark Mode Tokens */
+    --background: hsl(210 12% 13%); /* #1D2125 - Main canvas */
+    --foreground: hsl(212 21% 76%); /* #B6C2CF - Light gray text */
+    
+    --card: hsl(207 12% 15%); /* #22272B - Elevated surfaces/cards */
+    --card-foreground: hsl(212 21% 76%);
+    
+    --popover: hsl(207 12% 15%);
+    --popover-foreground: hsl(212 21% 76%);
+    
+    --primary: hsl(215 100% 67%); /* #579DFF - Light Atlassian Blue */
+    --primary-foreground: hsl(210 12% 13%);
+    
+    --secondary: hsl(212 14% 22%); /* #2C333A - Dark gray backgrounds */
+    --secondary-foreground: hsl(212 21% 76%);
+    
+    --muted: hsl(212 14% 22%);
+    --muted-foreground: hsl(211 13% 61%); /* #8C9BAB - Muted text */
+    
+    --accent: hsl(215 25% 22%); /* #1D2D3D - Dark hover blue */
+    --accent-foreground: hsl(215 100% 67%);
+    
+    --destructive: hsl(354 58% 60%); /* #F15B50 - Dark mode red */
+    --border: hsl(212 14% 22%); /* #2C333A - Dark borders */
+    --input: hsl(212 14% 22%);
+    --ring: hsl(215 100% 67%);
+    
+    --chart-1: hsl(215 100% 67%);
+    --chart-2: hsl(145 50% 50%); /* #4BCE97 - Light Green */
+    --chart-3: hsl(35 100% 65%); /* #FAA53D - Light Orange */
+    --chart-4: hsl(265 80% 75%); /* #9F8FEF - Light Purple */
+    --chart-5: hsl(190 90% 60%); /* #60C6D8 - Light Teal */
+    
+    --sidebar: hsl(207 12% 15%); /* #22272B */
+    --sidebar-foreground: hsl(211 13% 61%);
+    --sidebar-primary: hsl(215 100% 67%);
+    --sidebar-primary-foreground: hsl(210 12% 13%);
+    --sidebar-accent: hsl(212 14% 22%);
+    --sidebar-accent-foreground: hsl(212 21% 76%);
+    --sidebar-border: hsl(212 14% 22%);
+    --sidebar-ring: hsl(215 100% 67%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+}

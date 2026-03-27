@@ -1,0 +1,834 @@
+{
+  "info": {
+    "_postman_id": "6d7ef104-37ce-4db4-a102-b3dc8b8d4e45",
+    "name": "Coworkx Backend - Full API Collection",
+    "description": "Complete collection for all APIs mounted in App.js: auth, organizations, roles, projects, invitations, and health.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "authToken", "value": "" },
+    { "key": "email", "value": "user@example.com" },
+    { "key": "password", "value": "Password@123" },
+    { "key": "otp", "value": "123456" },
+    { "key": "resetToken", "value": "" },
+    { "key": "orgSlug", "value": "acme-org" },
+    { "key": "projectSlug", "value": "platform-revamp" },
+    { "key": "projectKey", "value": "PLATFORM" },
+    { "key": "userId", "value": "" },
+    { "key": "roleId", "value": "" },
+    { "key": "invitationId", "value": "" },
+    { "key": "invitationToken", "value": "" },
+    { "key": "googleIdToken", "value": "" },
+    { "key": "githubAccessToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /api/health",
+          "auth": { "type": "noauth" },
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /api/auth/register",
+          "auth": { "type": "noauth" },
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"John Doe\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/verify-otp",
+          "auth": { "type": "noauth" },
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"otp\": \"{{otp}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "verify-otp"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/resend-otp",
+          "auth": { "type": "noauth" },
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/resend-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "resend-otp"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/login",
+          "auth": { "type": "noauth" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "if (json.accessToken) pm.collectionVariables.set('authToken', json.accessToken);",
+                  "if (json.user && json.user.id) pm.collectionVariables.set('userId', json.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/google",
+          "auth": { "type": "noauth" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "if (json.accessToken) pm.collectionVariables.set('authToken', json.accessToken);",
+                  "if (json.user && json.user.id) pm.collectionVariables.set('userId', json.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idToken\": \"{{googleIdToken}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/google",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "google"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/github",
+          "auth": { "type": "noauth" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "if (json.accessToken) pm.collectionVariables.set('authToken', json.accessToken);",
+                  "if (json.user && json.user.id) pm.collectionVariables.set('userId', json.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accessToken\": \"{{githubAccessToken}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/github",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "github"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/refresh",
+          "auth": { "type": "noauth" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "if (json.accessToken) pm.collectionVariables.set('authToken', json.accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/forgot-password",
+          "auth": { "type": "noauth" },
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/verify-reset-otp",
+          "auth": { "type": "noauth" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "if (json.resetToken) pm.collectionVariables.set('resetToken', json.resetToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"otp\": \"{{otp}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/verify-reset-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "verify-reset-otp"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/reset-password",
+          "auth": { "type": "noauth" },
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resetToken\": \"{{resetToken}}\",\n  \"newPassword\": \"NewPassword@123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "reset-password"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/logout",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/auth/me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "if (json.user && json.user.id) pm.collectionVariables.set('userId', json.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Organizations",
+      "item": [
+        {
+          "name": "POST /api/orgs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "const slug = (json.organization && json.organization.slug) || json.slug || (json.data && json.data.slug);",
+                  "if (slug) pm.collectionVariables.set('orgSlug', slug);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Organization\",\n  \"slug\": \"{{orgSlug}}\",\n  \"description\": \"Main workspace\",\n  \"logoUrl\": \"https://example.com/logo.png\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/orgs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/orgs/:slug",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/orgs/:slug",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Organization Updated\",\n  \"description\": \"Updated description\",\n  \"logoUrl\": \"https://example.com/logo2.png\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/orgs/:slug",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/orgs/:slug/members",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "const first = (json.members && json.members[0]) || (json.data && json.data.members && json.data.members[0]);",
+                  "if (first && first.userId) pm.collectionVariables.set('userId', first.userId);",
+                  "if (first && first.id && !pm.collectionVariables.get('userId')) pm.collectionVariables.set('userId', first.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "members"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/orgs/:slug/members?role=member&search=john",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/members?role=member&search=john",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "members"],
+              "query": [
+                { "key": "role", "value": "member" },
+                { "key": "search", "value": "john" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/orgs/:slug/members/:userId",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"member\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/members/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "members", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/orgs/:slug/members/:userId",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/members/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "members", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/orgs/:slug/invitations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "const inv = json.invitation || (json.data && json.data.invitation) || json.data || {};",
+                  "if (inv.id) pm.collectionVariables.set('invitationId', inv.id);",
+                  "if (inv.token) pm.collectionVariables.set('invitationToken', inv.token);",
+                  "if (json.token && !pm.collectionVariables.get('invitationToken')) pm.collectionVariables.set('invitationToken', json.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"invitee@example.com\",\n  \"role\": \"member\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/invitations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "invitations"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/orgs/:slug/invitations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/invitations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "invitations"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/orgs/:slug/invitations/:invitationId/resend",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/invitations/{{invitationId}}/resend",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "invitations", "{{invitationId}}", "resend"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/orgs/:slug/invitations/:invitationId",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/invitations/{{invitationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "invitations", "{{invitationId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "POST /api/orgs/:slug/roles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "const role = json.role || (json.data && json.data.role) || json.data || {};",
+                  "if (role.id) pm.collectionVariables.set('roleId', role.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Developer\",\n  \"description\": \"Can manage tasks\",\n  \"permissions\": {\n    \"project\": {\n      \"read\": true,\n      \"write\": true,\n      \"delete\": false\n    },\n    \"task\": {\n      \"create\": true,\n      \"update\": true,\n      \"delete\": false\n    }\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/roles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "roles"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/orgs/:slug/roles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "const first = (json.roles && json.roles[0]) || (json.data && json.data.roles && json.data.roles[0]);",
+                  "if (first && first.id) pm.collectionVariables.set('roleId', first.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/roles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "roles"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/orgs/:slug/roles/:roleId",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Senior Developer\",\n  \"description\": \"Updated role description\",\n  \"permissions\": {\n    \"project\": {\n      \"read\": true,\n      \"write\": true,\n      \"delete\": false\n    },\n    \"task\": {\n      \"create\": true,\n      \"update\": true,\n      \"delete\": true\n    }\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/roles/{{roleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "roles", "{{roleId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/orgs/:slug/roles/:roleId",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/roles/{{roleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "roles", "{{roleId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Projects",
+      "item": [
+        {
+          "name": "POST /api/orgs/:slug/projects",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "const p = json.project || (json.data && json.data.project) || json.data || {};",
+                  "if (p.slug) pm.collectionVariables.set('projectSlug', p.slug);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Platform Revamp\",\n  \"key\": \"{{projectKey}}\",\n  \"slug\": \"{{projectSlug}}\",\n  \"description\": \"Rebuild platform\",\n  \"icon\": \"rocket\",\n  \"leadId\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "projects"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/orgs/:slug/projects",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "projects"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/orgs/:slug/projects?status=active&search=platform",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects?status=active&search=platform",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "projects"],
+              "query": [
+                { "key": "status", "value": "active" },
+                { "key": "search", "value": "platform" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /api/orgs/:slug/projects/:projectSlug",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/orgs/:slug/projects/:projectSlug",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Platform Revamp v2\",\n  \"description\": \"Updated roadmap\",\n  \"icon\": \"sparkles\",\n  \"leadId\": null,\n  \"status\": \"active\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/orgs/:slug/projects/:projectSlug",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/orgs/:slug/projects/:projectSlug/members",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"roleId\": \"{{roleId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}", "members"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/orgs/:slug/projects/:projectSlug/members",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "const first = (json.members && json.members[0]) || (json.data && json.data.members && json.data.members[0]);",
+                  "if (first && first.userId) pm.collectionVariables.set('userId', first.userId);",
+                  "if (first && first.id && !pm.collectionVariables.get('userId')) pm.collectionVariables.set('userId', first.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}", "members"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/orgs/:slug/projects/:projectSlug/members/:userId",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleId\": \"{{roleId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/members/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}", "members", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/orgs/:slug/projects/:projectSlug/members/:userId",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/members/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}", "members", "{{userId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invitations",
+      "item": [
+        {
+          "name": "POST /api/invitations/:token/accept",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/invitations/{{invitationToken}}/accept",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invitations", "{{invitationToken}}", "accept"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
