@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "6d7ef104-37ce-4db4-a102-b3dc8b8d4e45",
     "name": "Coworkx Backend - Full API Collection",
-    "description": "Complete collection for all APIs mounted in App.js: auth, organizations, roles, projects, invitations, and health.",
+    "description": "Complete collection for all APIs mounted in App.js: auth, organizations, roles, projects, invitations, sprints, issues, github integration, and health.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -16,21 +16,94 @@
     ]
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:5000" },
-    { "key": "authToken", "value": "" },
-    { "key": "email", "value": "user@example.com" },
-    { "key": "password", "value": "Password@123" },
-    { "key": "otp", "value": "123456" },
-    { "key": "resetToken", "value": "" },
-    { "key": "orgSlug", "value": "acme-org" },
-    { "key": "projectSlug", "value": "platform-revamp" },
-    { "key": "projectKey", "value": "PLATFORM" },
-    { "key": "userId", "value": "" },
-    { "key": "roleId", "value": "" },
-    { "key": "invitationId", "value": "" },
-    { "key": "invitationToken", "value": "" },
-    { "key": "googleIdToken", "value": "" },
-    { "key": "githubAccessToken", "value": "" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "authToken",
+      "value": ""
+    },
+    {
+      "key": "email",
+      "value": "user@example.com"
+    },
+    {
+      "key": "password",
+      "value": "Password@123"
+    },
+    {
+      "key": "otp",
+      "value": "123456"
+    },
+    {
+      "key": "resetToken",
+      "value": ""
+    },
+    {
+      "key": "orgSlug",
+      "value": "acme-org"
+    },
+    {
+      "key": "projectSlug",
+      "value": "platform-revamp"
+    },
+    {
+      "key": "projectKey",
+      "value": "PLATFORM"
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "roleId",
+      "value": ""
+    },
+    {
+      "key": "invitationId",
+      "value": ""
+    },
+    {
+      "key": "invitationToken",
+      "value": ""
+    },
+    {
+      "key": "googleIdToken",
+      "value": ""
+    },
+    {
+      "key": "githubAccessToken",
+      "value": ""
+    },
+    {
+      "key": "sprintId",
+      "value": ""
+    },
+    {
+      "key": "statusId",
+      "value": ""
+    },
+    {
+      "key": "issueNumber",
+      "value": ""
+    },
+    {
+      "key": "commentId",
+      "value": ""
+    },
+    {
+      "key": "linkId",
+      "value": ""
+    },
+    {
+      "key": "repoId",
+      "value": ""
+    },
+    {
+      "key": "installationId",
+      "value": ""
+    }
   ],
   "item": [
     {
@@ -38,13 +111,20 @@
       "item": [
         {
           "name": "GET /api/health",
-          "auth": { "type": "noauth" },
+          "auth": {
+            "type": "noauth"
+          },
           "request": {
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
             }
           }
         }
@@ -55,61 +135,114 @@
       "item": [
         {
           "name": "POST /api/auth/register",
-          "auth": { "type": "noauth" },
+          "auth": {
+            "type": "noauth"
+          },
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"displayName\": \"John Doe\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             }
           }
         },
         {
           "name": "POST /api/auth/verify-otp",
-          "auth": { "type": "noauth" },
+          "auth": {
+            "type": "noauth"
+          },
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{email}}\",\n  \"otp\": \"{{otp}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/verify-otp",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "verify-otp"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-otp"
+              ]
             }
           }
         },
         {
           "name": "POST /api/auth/resend-otp",
-          "auth": { "type": "noauth" },
+          "auth": {
+            "type": "noauth"
+          },
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{email}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/resend-otp",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "resend-otp"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "resend-otp"
+              ]
             }
           }
         },
         {
           "name": "POST /api/auth/login",
-          "auth": { "type": "noauth" },
+          "auth": {
+            "type": "noauth"
+          },
           "event": [
             {
               "listen": "test",
@@ -126,22 +259,39 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           }
         },
         {
           "name": "POST /api/auth/google",
-          "auth": { "type": "noauth" },
+          "auth": {
+            "type": "noauth"
+          },
           "event": [
             {
               "listen": "test",
@@ -158,22 +308,39 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"idToken\": \"{{googleIdToken}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/google",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "google"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "google"
+              ]
             }
           }
         },
         {
           "name": "POST /api/auth/github",
-          "auth": { "type": "noauth" },
+          "auth": {
+            "type": "noauth"
+          },
           "event": [
             {
               "listen": "test",
@@ -190,22 +357,39 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"accessToken\": \"{{githubAccessToken}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/github",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "github"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "github"
+              ]
             }
           }
         },
         {
           "name": "POST /api/auth/refresh",
-          "auth": { "type": "noauth" },
+          "auth": {
+            "type": "noauth"
+          },
           "event": [
             {
               "listen": "test",
@@ -223,32 +407,57 @@
             "method": "POST",
             "url": {
               "raw": "{{baseUrl}}/api/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ]
             }
           }
         },
         {
           "name": "POST /api/auth/forgot-password",
-          "auth": { "type": "noauth" },
+          "auth": {
+            "type": "noauth"
+          },
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{email}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/forgot-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "forgot-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
             }
           }
         },
         {
           "name": "POST /api/auth/verify-reset-otp",
-          "auth": { "type": "noauth" },
+          "auth": {
+            "type": "noauth"
+          },
           "event": [
             {
               "listen": "test",
@@ -264,34 +473,66 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{email}}\",\n  \"otp\": \"{{otp}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/verify-reset-otp",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "verify-reset-otp"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-reset-otp"
+              ]
             }
           }
         },
         {
           "name": "POST /api/auth/reset-password",
-          "auth": { "type": "noauth" },
+          "auth": {
+            "type": "noauth"
+          },
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"resetToken\": \"{{resetToken}}\",\n  \"newPassword\": \"NewPassword@123\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/reset-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "reset-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
             }
           }
         },
@@ -301,8 +542,14 @@
             "method": "POST",
             "url": {
               "raw": "{{baseUrl}}/api/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "logout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
             }
           }
         },
@@ -325,8 +572,14 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
             }
           }
         }
@@ -353,16 +606,30 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Acme Organization\",\n  \"slug\": \"{{orgSlug}}\",\n  \"description\": \"Main workspace\",\n  \"logoUrl\": \"https://example.com/logo.png\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/orgs",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs"
+              ]
             }
           }
         },
@@ -372,8 +639,13 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/orgs",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs"
+              ]
             }
           }
         },
@@ -383,8 +655,14 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}"
+              ]
             }
           }
         },
@@ -392,16 +670,31 @@
           "name": "PATCH /api/orgs/:slug",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Acme Organization Updated\",\n  \"description\": \"Updated description\",\n  \"logoUrl\": \"https://example.com/logo2.png\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}"
+              ]
             }
           }
         },
@@ -411,8 +704,14 @@
             "method": "DELETE",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}"
+              ]
             }
           }
         },
@@ -437,8 +736,15 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/members",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "members"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "members"
+              ]
             }
           }
         },
@@ -448,11 +754,24 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/members?role=member&search=john",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "members"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "members"
+              ],
               "query": [
-                { "key": "role", "value": "member" },
-                { "key": "search", "value": "john" }
+                {
+                  "key": "role",
+                  "value": "member"
+                },
+                {
+                  "key": "search",
+                  "value": "john"
+                }
               ]
             }
           }
@@ -461,16 +780,33 @@
           "name": "PATCH /api/orgs/:slug/members/:userId",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"role\": \"member\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/members/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "members", "{{userId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "members",
+                "{{userId}}"
+              ]
             }
           }
         },
@@ -480,8 +816,16 @@
             "method": "DELETE",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/members/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "members", "{{userId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "members",
+                "{{userId}}"
+              ]
             }
           }
         },
@@ -505,16 +849,32 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"invitee@example.com\",\n  \"role\": \"member\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/invitations",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "invitations"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "invitations"
+              ]
             }
           }
         },
@@ -524,8 +884,15 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/invitations",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "invitations"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "invitations"
+              ]
             }
           }
         },
@@ -535,8 +902,17 @@
             "method": "POST",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/invitations/{{invitationId}}/resend",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "invitations", "{{invitationId}}", "resend"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "invitations",
+                "{{invitationId}}",
+                "resend"
+              ]
             }
           }
         },
@@ -546,8 +922,16 @@
             "method": "DELETE",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/invitations/{{invitationId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "invitations", "{{invitationId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "invitations",
+                "{{invitationId}}"
+              ]
             }
           }
         }
@@ -574,16 +958,32 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Developer\",\n  \"description\": \"Can manage tasks\",\n  \"permissions\": {\n    \"project\": {\n      \"read\": true,\n      \"write\": true,\n      \"delete\": false\n    },\n    \"task\": {\n      \"create\": true,\n      \"update\": true,\n      \"delete\": false\n    }\n  }\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/roles",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "roles"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "roles"
+              ]
             }
           }
         },
@@ -607,8 +1007,15 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/roles",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "roles"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "roles"
+              ]
             }
           }
         },
@@ -616,16 +1023,33 @@
           "name": "PATCH /api/orgs/:slug/roles/:roleId",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Senior Developer\",\n  \"description\": \"Updated role description\",\n  \"permissions\": {\n    \"project\": {\n      \"read\": true,\n      \"write\": true,\n      \"delete\": false\n    },\n    \"task\": {\n      \"create\": true,\n      \"update\": true,\n      \"delete\": true\n    }\n  }\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/roles/{{roleId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "roles", "{{roleId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "roles",
+                "{{roleId}}"
+              ]
             }
           }
         },
@@ -635,8 +1059,16 @@
             "method": "DELETE",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/roles/{{roleId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "roles", "{{roleId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "roles",
+                "{{roleId}}"
+              ]
             }
           }
         }
@@ -663,16 +1095,32 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Platform Revamp\",\n  \"key\": \"{{projectKey}}\",\n  \"slug\": \"{{projectSlug}}\",\n  \"description\": \"Rebuild platform\",\n  \"icon\": \"rocket\",\n  \"leadId\": null\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "projects"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects"
+              ]
             }
           }
         },
@@ -682,8 +1130,15 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "projects"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects"
+              ]
             }
           }
         },
@@ -693,11 +1148,24 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects?status=active&search=platform",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "projects"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects"
+              ],
               "query": [
-                { "key": "status", "value": "active" },
-                { "key": "search", "value": "platform" }
+                {
+                  "key": "status",
+                  "value": "active"
+                },
+                {
+                  "key": "search",
+                  "value": "platform"
+                }
               ]
             }
           }
@@ -708,8 +1176,16 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}"
+              ]
             }
           }
         },
@@ -717,16 +1193,33 @@
           "name": "PATCH /api/orgs/:slug/projects/:projectSlug",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Platform Revamp v2\",\n  \"description\": \"Updated roadmap\",\n  \"icon\": \"sparkles\",\n  \"leadId\": null,\n  \"status\": \"active\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}"
+              ]
             }
           }
         },
@@ -736,8 +1229,16 @@
             "method": "DELETE",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}"
+              ]
             }
           }
         },
@@ -745,16 +1246,34 @@
           "name": "POST /api/orgs/:slug/projects/:projectSlug/members",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"roleId\": \"{{roleId}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/members",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}", "members"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "members"
+              ]
             }
           }
         },
@@ -779,8 +1298,17 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/members",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}", "members"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "members"
+              ]
             }
           }
         },
@@ -788,16 +1316,35 @@
           "name": "PATCH /api/orgs/:slug/projects/:projectSlug/members/:userId",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"roleId\": \"{{roleId}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/members/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}", "members", "{{userId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "members",
+                "{{userId}}"
+              ]
             }
           }
         },
@@ -807,8 +1354,18 @@
             "method": "DELETE",
             "url": {
               "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/members/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orgs", "{{orgSlug}}", "projects", "{{projectSlug}}", "members", "{{userId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "members",
+                "{{userId}}"
+              ]
             }
           }
         }
@@ -823,8 +1380,1127 @@
             "method": "POST",
             "url": {
               "raw": "{{baseUrl}}/api/invitations/{{invitationToken}}/accept",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "invitations", "{{invitationToken}}", "accept"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "invitations",
+                "{{invitationToken}}",
+                "accept"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Issue Backlog & Statuses",
+      "item": [
+        {
+          "name": "GET /api/orgs/:slug/projects/:projectSlug/backlog",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "const first = (json.issues && json.issues[0]) || null;",
+                  "if (first && typeof first.number !== 'undefined') pm.collectionVariables.set('issueNumber', String(first.number));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/backlog",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "backlog"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/orgs/:slug/projects/:projectSlug/backlog/move",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issueNumbers\": [\"{{issueNumber}}\"],\n  \"sprintId\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/backlog/move",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "backlog",
+                "move"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/orgs/:slug/projects/:projectSlug/statuses",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "const status = json.status || (json.data && json.data.status) || null;",
+                  "if (status && status.id) pm.collectionVariables.set('statusId', status.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"QA Review\",\n  \"category\": \"in_progress\",\n  \"color\": \"#F59E0B\",\n  \"position\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "statuses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /api/orgs/:slug/projects/:projectSlug/statuses",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "const first = (json.statuses && json.statuses[0]) || null;",
+                  "if (first && first.id) pm.collectionVariables.set('statusId', first.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "statuses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/orgs/:slug/projects/:projectSlug/statuses/:statusId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ready for QA\",\n  \"color\": \"#0EA5E9\",\n  \"position\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/statuses/{{statusId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "statuses",
+                "{{statusId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/orgs/:slug/projects/:projectSlug/statuses/:statusId",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/statuses/{{statusId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "statuses",
+                "{{statusId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sprints (Mounted /api/sprints)",
+      "item": [
+        {
+          "name": "POST /api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sprints",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "sprints"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sprint 1\",\n  \"goal\": \"Ship inbox MVP\",\n  \"startDate\": \"2026-03-28\",\n  \"endDate\": \"2026-04-11\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sprints",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "sprints"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints/{{sprintId}}",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints/{{sprintId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sprints",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "sprints",
+                "{{sprintId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints/{{sprintId}}",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints/{{sprintId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sprints",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "sprints",
+                "{{sprintId}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sprint 1 - Updated\",\n  \"goal\": \"Refine sprint scope\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints/{{sprintId}}/start",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints/{{sprintId}}/start",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sprints",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "sprints",
+                "{{sprintId}}",
+                "start"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints/{{sprintId}}/complete",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints/{{sprintId}}/complete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sprints",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "sprints",
+                "{{sprintId}}",
+                "complete"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"moveUnfinishedTo\": \"backlog\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints/{{sprintId}}",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/sprints/{{orgSlug}}/projects/{{projectSlug}}/sprints/{{sprintId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sprints",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "sprints",
+                "{{sprintId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Issues (Mounted /api/issues)",
+      "item": [
+        {
+          "name": "GET /api/issues/{{orgSlug}}/projects/{{projectSlug}}/backlog",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/backlog",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "backlog"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/issues/{{orgSlug}}/projects/{{projectSlug}}/backlog/move",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/backlog/move",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "backlog",
+                "move"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issueNumbers\": [\n    \"{{issueNumber}}\"\n  ],\n  \"sprintId\": \"{{sprintId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/issues/{{orgSlug}}/projects/{{projectSlug}}/statuses",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "statuses"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Blocked\",\n  \"category\": \"in_progress\",\n  \"color\": \"#FF5630\",\n  \"position\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/issues/{{orgSlug}}/projects/{{projectSlug}}/statuses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "statuses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/issues/{{orgSlug}}/projects/{{projectSlug}}/statuses/{{statusId}}",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/statuses/{{statusId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "statuses",
+                "{{statusId}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ready for QA\",\n  \"color\": \"#0052CC\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/issues/{{orgSlug}}/projects/{{projectSlug}}/statuses/{{statusId}}",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/statuses/{{statusId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "statuses",
+                "{{statusId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "issues"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Build inbox detail view\",\n  \"description\": \"Implement right panel for selected issue\",\n  \"type\": \"task\",\n  \"priority\": \"medium\",\n  \"statusId\": \"{{statusId}}\",\n  \"sprintId\": \"{{sprintId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "issues"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "issues",
+                "{{issueNumber}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "issues",
+                "{{issueNumber}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Build inbox detail view (updated)\",\n  \"priority\": \"high\",\n  \"statusId\": \"{{statusId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "issues",
+                "{{issueNumber}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}/comments",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "issues",
+                "{{issueNumber}}",
+                "comments"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Looks good. Let us refine this in next sprint.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}/comments/{{commentId}}",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}/comments/{{commentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "issues",
+                "{{issueNumber}}",
+                "comments",
+                "{{commentId}}"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated comment content.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}/comments/{{commentId}}",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}/comments/{{commentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "issues",
+                "{{issueNumber}}",
+                "comments",
+                "{{commentId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}/links",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}/links",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "issues",
+                "{{issueNumber}}",
+                "links"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetIssueNumber\": \"1\",\n  \"type\": \"blocks\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}/links/{{linkId}}",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}/links/{{linkId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "issues",
+                "{{issueNumber}}",
+                "links",
+                "{{linkId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}/history",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/issues/{{orgSlug}}/projects/{{projectSlug}}/issues/{{issueNumber}}/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "issues",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "issues",
+                "{{issueNumber}}",
+                "history"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "GitHub",
+      "item": [
+        {
+          "name": "GET /api/auth/github/install",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/github/install",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "github",
+                "install"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/github/webhook",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/github/webhook",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "github",
+                "webhook"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"opened\",\n  \"issue\": {\n    \"number\": 1,\n    \"title\": \"Sample webhook event\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "auth": {
+            "type": "noauth"
+          }
+        },
+        {
+          "name": "GET /api/orgs/{{orgSlug}}/github/installations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/github/installations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "github",
+                "installations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/orgs/{{orgSlug}}/github/installations/{{installationId}}",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/github/installations/{{installationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "github",
+                "installations",
+                "{{installationId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/orgs/{{orgSlug}}/projects/{{projectSlug}}/github/link",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/github/link",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "github",
+                "link"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"installationId\": \"{{installationId}}\",\n  \"owner\": \"your-org\",\n  \"repo\": \"your-repo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/orgs/{{orgSlug}}/projects/{{projectSlug}}/github/repos",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/github/repos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "github",
+                "repos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/orgs/{{orgSlug}}/projects/{{projectSlug}}/github/repos/{{repoId}}",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/github/repos/{{repoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "github",
+                "repos",
+                "{{repoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/orgs/{{orgSlug}}/projects/{{projectSlug}}/github/repos/{{repoId}}/import",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/orgs/{{orgSlug}}/projects/{{projectSlug}}/github/repos/{{repoId}}/import",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orgs",
+                "{{orgSlug}}",
+                "projects",
+                "{{projectSlug}}",
+                "github",
+                "repos",
+                "{{repoId}}",
+                "import"
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"state\": \"open\",\n  \"labels\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         }

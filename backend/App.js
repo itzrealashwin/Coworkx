@@ -12,6 +12,9 @@ import orgRoutes from './routes/org.routes.js';
 import invitationRoutes from './routes/invitation.routes.js';
 import roleRoutes from './routes/role.routes.js';
 import projectRoutes from './routes/project.routes.js';
+import sprintRoutes from './routes/sprint.routes.js';
+import issueRoutes from './routes/issue.routes.js';
+import githubRoutes from './routes/github.routes.js';
 
 const app = express();
 
@@ -34,7 +37,14 @@ app.use(
 );
 
 // ─── Body parsers ────────────────────────────────────────────
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({
+  limit: '1mb',
+  verify: (req, _res, buf) => {
+    if (req.originalUrl?.startsWith('/api/github/webhook')) {
+      req.rawBody = buf.toString('utf8');
+    }
+  },
+}));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // ─── Cookie parser ───────────────────────────────────────────
@@ -53,6 +63,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/orgs', orgRoutes);
 app.use('/api/orgs', roleRoutes);
 app.use('/api/orgs', projectRoutes);
+app.use('/api/sprints', sprintRoutes);
+app.use('/api/issues', issueRoutes);
+app.use('/api', githubRoutes);
 app.use('/api/invitations', invitationRoutes);
 
 // ─── 404 handler ─────────────────────────────────────────────

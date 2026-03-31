@@ -17,4 +17,14 @@ export const queryKeys = {
     detail: (orgSlug, projectSlug) => ['projects', orgSlug, projectSlug],
     members: (orgSlug, projectSlug) => ['projects', orgSlug, projectSlug, 'members'],
   },
+  sprints: {
+    list: (orgSlug, projectSlug, filters = {}) => ['sprints', orgSlug, projectSlug, filters],
+    detail: (orgSlug, projectSlug, sprintId) => ['sprints', orgSlug, projectSlug, sprintId],
+  },
+  issues: {
+    list: (orgSlug, projectSlug, filters = {}) => ['issues', orgSlug, projectSlug, filters],
+    statuses: (orgSlug, projectSlug) => ['issues', orgSlug, projectSlug, 'statuses'],
+    detail: (orgSlug, projectSlug, issueNumber) => ['issues', orgSlug, projectSlug, issueNumber],
+    history: (orgSlug, projectSlug, issueNumber) => ['issues', orgSlug, projectSlug, issueNumber, 'history'],
+  },
 };

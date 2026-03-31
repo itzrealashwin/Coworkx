@@ -1,6 +1,13 @@
 import { prisma } from '../config/db.js';
 import AppError from '../utils/AppError.js';
 
+const DEFAULT_STATUSES = [
+  { name: 'To Do', category: 'todo', color: '#6B7280', position: 0 },
+  { name: 'In Progress', category: 'in_progress', color: '#3B82F6', position: 1 },
+  { name: 'In Review', category: 'in_progress', color: '#F59E0B', position: 2 },
+  { name: 'Done', category: 'done', color: '#10B981', position: 3 },
+];
+
 const _getPrivilegedOrgMembership = async (userId, slug) => {
   const membership = await prisma.orgMember.findFirst({
     where: {
@@ -244,29 +251,10 @@ const createProject = async (actorUserId, slug, { name, key, slug: projectSlug, 
     });
 
     await tx.issueStatus.createMany({
-      data: [
-        {
-          projectId: createdProject.id,
-          name: 'Todo',
-          category: 'todo',
-          color: '#94A3B8',
-          position: 1,
-        },
-        {
-          projectId: createdProject.id,
-          name: 'In Progress',
-          category: 'in_progress',
-          color: '#3B82F6',
-          position: 2,
-        },
-        {
-          projectId: createdProject.id,
-          name: 'Done',
-          category: 'done',
-          color: '#22C55E',
-          position: 3,
-        },
-      ],
+      data: DEFAULT_STATUSES.map((status) => ({
+        ...status,
+        projectId: createdProject.id,
+      })),
     });
 
     const ownerRole = await _getOrCreateOwnerRole(tx, actorMembership.orgId);

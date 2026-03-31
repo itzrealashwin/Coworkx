@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef } from "react"
-import { Link } from "react-router-dom"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { useEffect, useMemo, useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useIssues } from "@/hooks/useIssues";
+import { useSprints } from "@/hooks/useSprints";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
 import {
   LayoutDashboard,
   Inbox,
@@ -17,152 +19,242 @@ import {
   Users,
   BarChart2,
   Clock,
-  ChevronLeft
-} from "lucide-react"
+  ChevronLeft,
+} from "lucide-react";
 
-const sprintData = {
-  name: "Current Sprint",
-  status: "Active",
-  tasksCompleted: 8,
-  tasksTotal: 20,
-  daysLeft: 5,
-  progress: 65,
-}
+const POLL_INTERVAL_MS = 15000;
+
+const formatSprintStatus = (status) => {
+  if (!status) return "Idle";
+  return status
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+};
+
+const getDaysLabel = (endDate) => {
+  if (!endDate) return "No due date";
+
+  const end = new Date(endDate);
+  if (Number.isNaN(end.getTime())) return "No due date";
+
+  const diffDays = Math.ceil(
+    (end.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+  );
+
+  if (diffDays < 0) return `${Math.abs(diffDays)} days overdue`;
+  return `${diffDays} days left`;
+};
 
 export default function ProjectSidebar({ project, orgSlug }) {
-  const [activeItem, setActiveItem] = useState("sprint")
-  const [progressWidth, setProgressWidth] = useState(0)
+  const projectSlug = project?.slug;
+  const [progressWidth, setProgressWidth] = useState(0);
+  const navigate = useNavigate();
+  const { data: issuesData } = useIssues(
+    orgSlug,
+    projectSlug,
+    {},
+    {
+      enabled: Boolean(orgSlug && projectSlug),
+      refetchInterval: POLL_INTERVAL_MS,
+      refetchIntervalInBackground: true,
+    },
+  );
+
+  const { data: sprintsData } = useSprints(
+    orgSlug,
+    projectSlug,
+    {},
+    {
+      enabled: Boolean(orgSlug && projectSlug),
+      refetchInterval: POLL_INTERVAL_MS,
+      refetchIntervalInBackground: true,
+    },
+  );
+
+  const issues = issuesData?.issues ?? [];
+  const sprints = sprintsData?.sprints ?? [];
+
+  const activeSprint = useMemo(
+    () => sprints.find((sprint) => sprint.status === "active") ?? null,
+    [sprints],
+  );
+
+  const inboxCount = issues.length;
+
+  const backlogCount = useMemo(
+    () => issues.filter((issue) => !issue?.sprint && !issue?.sprintId).length,
+    [issues],
+  );
+
+  const sprintIssues = useMemo(() => {
+    if (!activeSprint) return [];
+
+    return issues.filter(
+      (issue) =>
+        issue?.sprint?.id === activeSprint.id ||
+        issue?.sprintId === activeSprint.id,
+    );
+  }, [issues, activeSprint]);
+
+  const tasksCompleted = useMemo(
+    () =>
+      sprintIssues.filter((issue) => issue?.status?.category === "done").length,
+    [sprintIssues],
+  );
+
+  const tasksTotal = sprintIssues.length;
+  const sprintProgress =
+    tasksTotal > 0 ? Math.round((tasksCompleted / tasksTotal) * 100) : 0;
+  const daysLabel = getDaysLabel(activeSprint?.endDate);
+  const sprintName = activeSprint?.name ?? "No Active Sprint";
+  const sprintStatus = formatSprintStatus(activeSprint?.status);
 
   useEffect(() => {
-    setTimeout(() => setProgressWidth(sprintData.progress), 100)
-  }, [])
-
-  const navItemClass = (key) =>
-    `flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors duration-150 cursor-pointer w-full text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
-      activeItem === key
-        ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-        : "font-medium"
-    }`
+    const timerId = setTimeout(() => setProgressWidth(sprintProgress), 100);
+    return () => clearTimeout(timerId);
+  }, [sprintProgress]);
 
   const navItems = [
-    { key: "overview",  icon: LayoutDashboard, label: "Overview"      },
-    { key: "inbox",     icon: Inbox,           label: "Issues Inbox", badge: "10" },
-    { key: "backlog",   icon: List,            label: "Backlog",      badge: "23" },
-    { key: "sprint",    icon: Kanban,          label: "Sprint Board"  },
-    { key: "workload",  icon: Users,           label: "Workload"      },
-    { key: "analytics", icon: BarChart2,       label: "Analytics"     },
-    { key: "activity",  icon: Clock,           label: "Activity"      },
-  ]
+    {
+      key: "overview",
+      to: "overview",
+      icon: LayoutDashboard,
+      label: "Overview",
+    },
+    {
+      key: "inbox",
+      to: "inbox",
+      icon: Inbox,
+      label: "Issues Inbox",
+      badge: inboxCount,
+    },
+    {
+      key: "backlog",
+      to: "backlog",
+      icon: List,
+      label: "Backlog",
+      badge: backlogCount,
+    },
+    { key: "sprint", to: "sprint", icon: Kanban, label: "Sprint Board" },
+    { key: "workload", to: "workload", icon: Users, label: "Workload" },
+    { key: "analytics", to: "analytics", icon: BarChart2, label: "Analytics" },
+    { key: "activity", to: "activity", icon: Clock, label: "Activity" },
+  ];
 
   return (
-    <div className="w-64 h-screen flex flex-col bg-sidebar border-r border-sidebar-border flex-shrink-0">
-      
-      {/* Back Link */}
-      <div className="px-4 pt-5 pb-2">
+    <div className="w-60 h-full flex flex-col bg-sidebar border-r border-sidebar-border shrink-0">
+      {/* Top Header Section */}
+      <div className="flex flex-col px-4 pt-5 pb-4 space-y-4">
+        {/* Back Link */}
         <Link
-          to={`/${orgSlug}`}
-          className="flex items-center gap-1.5 w-full text-xs font-medium text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors cursor-pointer"
+          onClick={() => navigate(-1)}
+          className="group flex items-center gap-1.5 text-xs font-medium text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors w-fit"
         >
-          <ChevronLeft size={16} />
+          <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
           Back to Projects
         </Link>
-      </div>
 
-      {/* Project Header */}
-      <div className="px-4 py-3">
+        {/* Project Profile */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-md flex items-center justify-center flex-shrink-0 bg-primary shadow-sm">
-            <span className="text-primary-foreground text-sm font-bold">
+          <div className="w-8 h-8 rounded-md flex items-center justify-center shrink-0 bg-primary shadow-sm">
+            <span className="text-primary-foreground text-xs font-bold">
               {project?.name?.charAt(0)?.toUpperCase() || "P"}
             </span>
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-bold text-sidebar-foreground truncate leading-tight">
+            <div className="text-sm font-semibold text-sidebar-foreground truncate leading-tight">
               {project?.name || "Software Project"}
             </div>
-            <div className="text-xs text-sidebar-foreground/60 leading-tight mt-0.5">
+            <div className="text-xs text-sidebar-foreground/60 leading-tight mt-0.5 truncate">
               Classic Project
             </div>
           </div>
         </div>
       </div>
 
-      <Separator className="bg-sidebar-border mx-4 w-auto my-1" />
+      <Separator className="bg-sidebar-border/60 mx-4 w-auto" />
 
-      {/* Navigation Links */}
-      <ScrollArea className="flex-1">
-        <div className="px-3 pt-4 space-y-0.5">
-          <div className="text-xs font-bold uppercase tracking-wider text-sidebar-foreground/50 px-3 pb-2">
+      {/* Navigation Area */}
+      <ScrollArea className="flex-1 py-4">
+        <div className="px-2 space-y-1 flex flex-col justify-center items-center">
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/50 px-3 pb-1">
             Project
           </div>
 
-          {navItems.map(({ key, icon: Icon, label, badge }) => (
-            <TooltipProvider key={key} delayDuration={0}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    className={navItemClass(key)}
-                    onClick={() => setActiveItem(key)}
-                  >
-                    <Icon size={18} className="flex-shrink-0" />
-                    <span className="flex-1 text-left">{label}</span>
-                    {badge && (
-                      <Badge
-                        variant="secondary"
-                        className="bg-sidebar-border/50 text-sidebar-foreground text-[10px] font-bold border-0 px-2 py-0.5 h-5 flex items-center justify-center"
-                      >
-                        {badge}
-                      </Badge>
-                    )}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent
-                  side="right"
-                  className="bg-popover text-popover-foreground text-xs font-semibold px-2.5 py-1.5 rounded-md border border-border shadow-sm"
-                >
+          {/* delayDuration prevents annoying flashes when moving mouse vertically */}
+          <TooltipProvider delayDuration={700}>
+            {navItems.map(({ key, to, icon: Icon, label, badge }) => (
+              <Tooltip key={key}>
+              <TooltipTrigger asChild>
+  <div className="w-full">
+    <NavLink
+      to={to}
+      end={key === "overview"}
+      className={({ isActive }) =>
+        `flex items-center px-3 py-2 rounded-md text-sm w-full ${
+          isActive
+            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+            : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50"
+        }`
+      }
+    >
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <Icon className="w-4 h-4 shrink-0" />
+        <span className="truncate">{label}</span>
+      </div>
+
+      {Number.isInteger(badge) && badge > 0 && (
+        <Badge className="ml-2 shrink-0 text-[10px] h-4 px-1.5 flex items-center justify-center">
+          {badge}
+        </Badge>
+      )}
+    </NavLink>
+  </div>
+</TooltipTrigger>
+                <TooltipContent side="right" className="text-xs font-medium">
                   {label}
                 </TooltipContent>
               </Tooltip>
-            </TooltipProvider>
-          ))}
+            ))}
+          </TooltipProvider>
         </div>
+      </ScrollArea>
 
-        <Separator className="bg-sidebar-border mx-4 my-4 w-auto" />
+      {/* Footer / Sprint Widget */}
+      <div className="p-4 mt-auto">
+        <div className="bg-sidebar-accent/40 rounded-lg p-3.5 border border-sidebar-border/50 shadow-sm flex flex-col gap-3">
+          <div className="flex items-start justify-between gap-2">
+            <span className="text-xs font-semibold text-sidebar-foreground truncate">
+              {sprintName}
+            </span>
+            <Badge
+              variant="secondary"
+              className="bg-primary/10 text-primary hover:bg-primary/20 text-[9px] uppercase font-bold border-0 px-1.5 py-0 h-4 shrink-0"
+            >
+              {sprintStatus}
+            </Badge>
+          </div>
 
-        {/* Sprint Widget */}
-        <div className="px-4 pb-4">
-          <div className="bg-sidebar-accent/50 rounded-lg p-3 border border-sidebar-border/50">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-sidebar-foreground">
-                {sprintData.name}
-              </span>
-              <Badge
-                variant="secondary"
-                className="bg-chart-2/15 text-chart-2 hover:bg-chart-2/25 text-[10px] uppercase font-bold border-0 px-1.5 py-0"
-              >
-                {sprintData.status}
-              </Badge>
-            </div>
-            
+          <div className="space-y-1.5">
             {/* Progress Bar */}
-            <div className="mt-2 h-1.5 bg-sidebar-border rounded-full overflow-hidden">
+            <div className="h-1.5 w-full bg-sidebar-border/60 rounded-full overflow-hidden">
               <div
-                className="h-full bg-chart-2 rounded-full transition-all duration-700 ease-out"
+                className="h-full bg-primary rounded-full transition-all duration-700 ease-in-out"
                 style={{ width: `${progressWidth}%` }}
               />
             </div>
-            
-            <div className="flex items-center justify-between mt-2.5">
-              <span className="text-[11px] font-medium text-sidebar-foreground/60">
-                {sprintData.tasksCompleted} / {sprintData.tasksTotal} tasks
+
+            {/* Stats */}
+            <div className="flex items-center justify-between text-[11px] font-medium text-sidebar-foreground/60">
+              <span>
+                {tasksCompleted} / {tasksTotal} tasks
               </span>
-              <span className="text-[11px] font-medium text-sidebar-foreground/60">
-                {sprintData.daysLeft} days left
-              </span>
+              <span>{daysLabel}</span>
             </div>
           </div>
         </div>
-      </ScrollArea>
+      </div>
     </div>
-  )
+  );
 }
