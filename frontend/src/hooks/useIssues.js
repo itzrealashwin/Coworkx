@@ -35,6 +35,40 @@ export const useIssueStatuses = (orgSlug, projectSlug, queryOptions = {}) => {
   });
 };
 
+export const useCreateIssueStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: issueService.createStatus,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.issues.statuses(variables.orgSlug, variables.projectSlug),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.issues.list(variables.orgSlug, variables.projectSlug),
+        exact: false,
+      });
+    },
+  });
+};
+
+export const useUpdateIssueStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: issueService.updateStatus,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.issues.statuses(variables.orgSlug, variables.projectSlug),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.issues.list(variables.orgSlug, variables.projectSlug),
+        exact: false,
+      });
+    },
+  });
+};
+
 export const useIssueHistory = (orgSlug, projectSlug, issueNumber, queryOptions = {}) => {
   const { enabled, ...restQueryOptions } = queryOptions;
 

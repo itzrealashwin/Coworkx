@@ -19,6 +19,7 @@ const listIssues = async (req, res, next) => {
   try {
     const issues = await issueService.listIssues({
       project: req.project,
+      org: req.org,
       orgMember: req.orgMember,
       userId: req.user.id,
       query: req.query,

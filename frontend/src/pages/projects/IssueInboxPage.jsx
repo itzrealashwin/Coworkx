@@ -6,17 +6,49 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom';
-import { CheckCheck, Inbox, MessageSquareText, SendHorizontal, X } from 'lucide-react';
+import {
+  CheckCheck,
+  Inbox,
+  X,
+  ChevronDown,
+  Circle,
+  AlertCircle,
+  Zap,
+  Minus,
+  ArrowDown,
+  Clock,
+  User,
+  Tag,
+  CalendarDays,
+  MessageSquare,
+  Activity,
+  Send,
+  Pencil,
+  Check,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useCreateComment,
@@ -26,67 +58,59 @@ import {
   useIssueStatuses,
   useUpdateIssue,
 } from '@/hooks/useIssues';
+import { useSprints } from '@/hooks/useSprints';
 import { useProjectMembers } from '@/hooks/useProjects';
+import { cn } from '@/lib/utils';
 
-const POLL_INTERVAL_MS = 15000;
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const FILTER_TABS = [
   { key: 'all', label: 'All' },
-  { key: 'assigned', label: 'Assigned to me' },
+  { key: 'assigned', label: 'Assigned' },
   { key: 'mentions', label: 'Mentions' },
-  { key: 'created', label: 'Created by me' },
+  { key: 'created', label: 'Created' },
 ];
 
-const PRIORITY_BAR_COLOR = {
-  urgent: '#DE350B',
-  high: '#FF8B00',
-  medium: '#0052CC',
-  low: '#6B778C',
+const PRIORITY_CONFIG = {
+  critical: {
+    label: 'Critical',
+    icon: AlertCircle,
+    class: 'text-red-500',
+    bg: 'bg-red-500/10 text-red-600 border-red-200 dark:border-red-900',
+  },
+  high: {
+    label: 'High',
+    icon: Zap,
+    class: 'text-orange-500',
+    bg: 'bg-orange-500/10 text-orange-600 border-orange-200 dark:border-orange-900',
+  },
+  medium: {
+    label: 'Medium',
+    icon: Minus,
+    class: 'text-blue-500',
+    bg: 'bg-blue-500/10 text-blue-600 border-blue-200 dark:border-blue-900',
+  },
+  low: {
+    label: 'Low',
+    icon: ArrowDown,
+    class: 'text-slate-400',
+    bg: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
+  },
 };
 
-const PRIORITY_OPTIONS = [
-  { value: 'urgent', label: 'Urgent' },
-  { value: 'high', label: 'High' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'low', label: 'Low' },
-];
-
-const STATUS_BADGE_CLASS_BY_CATEGORY = {
-  todo: 'bg-[#DFE1E6] text-[#42526E]',
-  in_progress: 'bg-[#DEEBFF] text-[#0052CC]',
-  done: 'bg-[#E3FCEF] text-[#006644]',
-};
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const toRelativeTime = (inputDate) => {
-  if (!inputDate) return 'just now';
-
+  if (!inputDate) return '—';
   const date = new Date(inputDate);
-  if (Number.isNaN(date.getTime())) return 'just now';
-
+  if (Number.isNaN(date.getTime())) return '—';
   const diff = Date.now() - date.getTime();
-  const minute = 60 * 1000;
-  const hour = 60 * minute;
-  const day = 24 * hour;
-
-  if (diff < minute) return 'now';
-  if (diff < hour) return `${Math.floor(diff / minute)}m ago`;
-  if (diff < day) return `${Math.floor(diff / hour)}h ago`;
-  if (diff < 7 * day) return `${Math.floor(diff / day)}d ago`;
-
-  return date.toLocaleDateString();
-};
-
-const toDueDateLabel = (dateInput) => {
-  if (!dateInput) return 'No due date';
-
-  const date = new Date(dateInput);
-  if (Number.isNaN(date.getTime())) return 'No due date';
-
-  return `Due ${date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })}`;
+  const m = 60 * 1000, h = 60 * m, d = 24 * h;
+  if (diff < m) return 'now';
+  if (diff < h) return `${Math.floor(diff / m)}m ago`;
+  if (diff < d) return `${Math.floor(diff / h)}h ago`;
+  if (diff < 7 * d) return `${Math.floor(diff / d)}d ago`;
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
 const getIssueKey = (issue, projectKey) => {
@@ -97,56 +121,196 @@ const getIssueKey = (issue, projectKey) => {
 };
 
 const getUserInitials = (value) => {
-  const source = String(value || '').trim();
-  if (!source) return 'UN';
-
-  if (source.includes('@')) {
-    return source.slice(0, 2).toUpperCase();
-  }
-
-  const parts = source.split(/\s+/).filter(Boolean);
+  const src = String(value || '').trim();
+  if (!src) return 'UN';
+  const parts = src.split(/\s+/).filter(Boolean);
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-
   return `${parts[0][0] || ''}${parts[1][0] || ''}`.toUpperCase();
 };
 
-const ListSkeleton = () => (
-  <div className="space-y-3 p-3">
-    {Array.from({ length: 7 }).map((_, index) => (
-      <div
-        key={`list-skeleton-${index}`}
-        className="rounded-md border border-[#DFE1E6] bg-white p-3 shadow-[0_1px_3px_rgba(9,30,66,0.08)]"
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function PriorityIcon({ priority, className }) {
+  const cfg = PRIORITY_CONFIG[priority] || PRIORITY_CONFIG.medium;
+  const Icon = cfg.icon;
+  return <Icon className={cn('size-3.5', cfg.class, className)} />;
+}
+
+function StatusDot({ status }) {
+  return (
+    <span
+      className="inline-block size-2 rounded-full flex-shrink-0"
+      style={{ backgroundColor: status?.color || '#94a3b8' }}
+    />
+  );
+}
+
+function MetaRow({ icon: Icon, label, children }) {
+  return (
+    <div className="flex items-center justify-between py-2.5 group">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <Icon className="size-3.5 shrink-0" />
+        <span>{label}</span>
+      </div>
+      <div className="text-xs font-medium text-foreground">{children}</div>
+    </div>
+  );
+}
+
+function IssueCard({ issue, issueKey, isSelected, onClick }) {
+  const priority = issue?.priority || 'medium';
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'w-full text-left px-4 py-3.5 transition-all duration-150 relative group',
+        'hover:bg-accent/50',
+        isSelected
+          ? 'bg-accent before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-primary before:rounded-r'
+          : 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-transparent'
+      )}
+    >
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-1.5">
+          <PriorityIcon priority={priority} />
+          <span className="text-[11px] font-mono font-medium text-muted-foreground tracking-wide">
+            {issueKey}
+          </span>
+        </div>
+        <span className="text-[11px] text-muted-foreground/70">
+          {toRelativeTime(issue?.createdAt)}
+        </span>
+      </div>
+
+      <p className="text-sm font-medium line-clamp-2 leading-snug mb-2.5 text-foreground/90">
+        {issue.title}
+      </p>
+
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <StatusDot status={issue?.status} />
+          <span className="text-[11px] text-muted-foreground">{issue?.status?.name || 'Todo'}</span>
+        </div>
+        {issue?.assignee ? (
+          <Avatar className="size-5 ring-1 ring-border">
+            <AvatarImage src={issue.assignee.avatarUrl} />
+            <AvatarFallback className="text-[9px] bg-primary/10 text-primary font-semibold">
+              {getUserInitials(issue.assignee.displayName)}
+            </AvatarFallback>
+          </Avatar>
+        ) : (
+          <div className="size-5 rounded-full border border-dashed border-muted-foreground/30 flex items-center justify-center">
+            <User className="size-2.5 text-muted-foreground/40" />
+          </div>
+        )}
+      </div>
+    </button>
+  );
+}
+
+function EditableTitle({ value, onSave, isLoading }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+
+  useEffect(() => { setDraft(value); }, [value]);
+
+  const commit = () => {
+    setEditing(false);
+    if (draft.trim() && draft !== value) onSave(draft.trim());
+  };
+
+  if (editing) {
+    return (
+      <div className="flex items-start gap-2">
+        <textarea
+          autoFocus
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commit(); } if (e.key === 'Escape') { setDraft(value); setEditing(false); } }}
+          rows={2}
+          className="flex-1 text-xl font-semibold bg-transparent outline-none resize-none border-b-2 border-primary pb-1 leading-snug"
+        />
+        <Button size="icon" variant="ghost" className="h-7 w-7 mt-0.5 text-primary" onClick={commit}>
+          <Check className="size-3.5" />
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-start gap-2 group/title">
+      <h1 className="flex-1 text-xl font-semibold leading-snug cursor-text text-foreground">
+        {value}
+      </h1>
+      <button
+        onClick={() => setEditing(true)}
+        className="opacity-0 group-hover/title:opacity-100 transition-opacity mt-1 p-1 rounded hover:bg-muted text-muted-foreground"
       >
-        <Skeleton className="mb-2 h-3 w-24" />
-        <Skeleton className="mb-2 h-4 w-[90%]" />
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-3 w-20" />
-          <Skeleton className="h-5 w-16 rounded-full" />
+        <Pencil className="size-3" />
+      </button>
+    </div>
+  );
+}
+
+function EditableDescription({ value, onSave }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value || '');
+
+  useEffect(() => {
+    setDraft(value || '');
+  }, [value]);
+
+  const commit = () => {
+    setEditing(false);
+    const trimmedDraft = draft.trim();
+    if (trimmedDraft !== (value || '').trim()) {
+      onSave(trimmedDraft || null);
+    }
+  };
+
+  if (editing) {
+    return (
+      <div className="flex flex-col gap-2">
+        <textarea
+          autoFocus
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          rows={4}
+          className="w-full text-sm bg-transparent outline-none resize-y border rounded-md border-primary/50 p-3 leading-relaxed focus:bg-background"
+          placeholder="Add a description..."
+        />
+        <div className="flex gap-2 justify-end">
+          <Button size="sm" variant="ghost" onClick={() => { setDraft(value || ''); setEditing(false); }}>
+            Cancel
+          </Button>
+          <Button size="sm" onClick={commit}>
+            Save
+          </Button>
         </div>
       </div>
-    ))}
-  </div>
-);
+    );
+  }
 
-const DetailSkeleton = () => (
-  <div className="h-full p-6">
-    <Skeleton className="mb-3 h-5 w-1/3" />
-    <Skeleton className="mb-6 h-8 w-2/3" />
-    <div className="mb-6 flex gap-3">
-      <Skeleton className="h-9 w-40" />
-      <Skeleton className="h-9 w-32" />
-      <Skeleton className="h-9 w-44" />
-      <Skeleton className="h-9 w-28" />
+  return (
+    <div className="group/desc relative">
+      <div className={cn(
+        'rounded-lg border border-border px-4 py-3.5 text-sm leading-relaxed',
+        value ? 'text-foreground/90' : 'text-muted-foreground italic bg-muted/20'
+      )}>
+        {value || 'No description provided.'}
+      </div>
+      <button
+        onClick={() => setEditing(true)}
+        className="absolute top-2 right-2 opacity-0 group-hover/desc:opacity-100 transition-opacity p-1.5 rounded bg-muted/80 hover:bg-muted text-muted-foreground"
+      >
+        <Pencil className="size-3.5" />
+      </button>
     </div>
-    <Skeleton className="mb-3 h-4 w-36" />
-    <Skeleton className="mb-2 h-4 w-full" />
-    <Skeleton className="mb-2 h-4 w-[92%]" />
-    <Skeleton className="mb-6 h-4 w-[80%]" />
-    <Skeleton className="mb-2 h-8 w-48" />
-    <Skeleton className="mb-2 h-20 w-full" />
-    <Skeleton className="h-20 w-full" />
-  </div>
-);
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function IssueInboxPage() {
   const { orgSlug, projectSlug } = useParams();
@@ -157,611 +321,631 @@ export default function IssueInboxPage() {
   const { user } = useAuth();
 
   const [activeFilter, setActiveFilter] = useState('all');
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [titleDraft, setTitleDraft] = useState('');
   const [commentDraft, setCommentDraft] = useState('');
-  const [localCommentsByIssue, setLocalCommentsByIssue] = useState({});
-  const [readMap, setReadMap] = useState({});
 
   const selectedIssueParam = searchParams.get('issue');
 
-  const {
-    data: issuesData,
-    isLoading: isIssuesLoading,
-  } = useIssues(orgSlug, projectSlug, {}, {
+  const { data: issuesData, isLoading: isIssuesLoading } = useIssues(orgSlug, projectSlug, {}, {
     enabled: Boolean(orgSlug && projectSlug),
-    refetchInterval: POLL_INTERVAL_MS,
-    refetchIntervalInBackground: true,
   });
-
-  const {
-    data: statusesData,
-  } = useIssueStatuses(orgSlug, projectSlug, {
+  const { data: statusesData } = useIssueStatuses(orgSlug, projectSlug, {
     enabled: Boolean(orgSlug && projectSlug),
-    refetchInterval: POLL_INTERVAL_MS,
-    refetchIntervalInBackground: true,
   });
-
-  const {
-    data: membersData,
-  } = useProjectMembers(orgSlug, projectSlug);
-
-  const {
-    data: issueDetailData,
-    isLoading: isIssueDetailLoading,
-  } = useIssue(orgSlug, projectSlug, selectedIssueParam, {
-    enabled: Boolean(orgSlug && projectSlug && selectedIssueParam),
-    refetchInterval: POLL_INTERVAL_MS,
-    refetchIntervalInBackground: true,
-  });
-
-  const {
-    data: historyData,
-    isLoading: isHistoryLoading,
-  } = useIssueHistory(orgSlug, projectSlug, selectedIssueParam, {
-    enabled: Boolean(orgSlug && projectSlug && selectedIssueParam),
-    refetchInterval: POLL_INTERVAL_MS,
-    refetchIntervalInBackground: true,
-  });
-
-  const { mutateAsync: updateIssue, isPending: isUpdatingIssue } = useUpdateIssue();
+  const { data: membersData } = useProjectMembers(orgSlug, projectSlug);
+  const { data: sprintsData } = useSprints(orgSlug, projectSlug);
+  const { data: issueDetailData, isLoading: isIssueDetailLoading } = useIssue(
+    orgSlug, projectSlug, selectedIssueParam,
+    { enabled: Boolean(orgSlug && projectSlug && selectedIssueParam) }
+  );
+  const { data: issueHistoryData, isLoading: isIssueHistoryLoading } = useIssueHistory(
+    orgSlug, projectSlug, selectedIssueParam,
+    { enabled: Boolean(orgSlug && projectSlug && selectedIssueParam) }
+  );
+  const { mutateAsync: updateIssue } = useUpdateIssue();
   const { mutateAsync: createComment, isPending: isSendingComment } = useCreateComment();
 
-  const project = issueDetailData?.issue?.project || projectContext || null;
-  const projectKey = project?.key || projectContext?.key;
+  const projectKey = projectContext?.key;
   const issues = issuesData?.issues ?? [];
   const statuses = statusesData?.statuses ?? [];
   const members = membersData?.members ?? [];
-
-  useEffect(() => {
-    if (!issues.length) return;
-
-    setReadMap((prev) => {
-      const next = { ...prev };
-      for (const issue of issues) {
-        const key = getIssueKey(issue, projectKey);
-        if (key && typeof next[key] === 'undefined') {
-          next[key] = false;
-        }
-      }
-      return next;
-    });
-  }, [issues, projectKey]);
-
-  useEffect(() => {
-    if (!selectedIssueParam) return;
-
-    setReadMap((prev) => ({
-      ...prev,
-      [selectedIssueParam]: true,
-    }));
-  }, [selectedIssueParam]);
-
-  const mentionTokens = useMemo(() => {
-    const raw = [
-      user?.username,
-      user?.displayName,
-      user?.email?.split('@')[0],
-      user?.email,
-    ]
-      .filter(Boolean)
-      .map((value) => String(value).toLowerCase());
-
-    return [...new Set(raw)];
-  }, [user]);
+  const sprints = sprintsData?.sprints ?? [];
+  const selectedIssue =
+    issueDetailData?.issue || issues.find((i) => getIssueKey(i, projectKey) === selectedIssueParam);
+  const history = issueHistoryData?.history ?? [];
 
   const filteredIssues = useMemo(() => {
     return issues.filter((issue) => {
       if (activeFilter === 'all') return true;
-
-      if (activeFilter === 'assigned') {
-        return issue?.assignee?.id === user?.id;
-      }
-
-      if (activeFilter === 'created') {
-        return issue?.reporter?.id === user?.id;
-      }
-
-      if (activeFilter === 'mentions') {
-        const haystack = `${issue?.title || ''} ${issue?.description || ''}`.toLowerCase();
-        return mentionTokens.some((token) => haystack.includes(`@${token}`));
-      }
-
+      if (activeFilter === 'assigned') return issue?.assignee?.id === user?.id;
+      if (activeFilter === 'created') return issue?.reporter?.id === user?.id;
       return true;
     });
-  }, [activeFilter, issues, mentionTokens, user?.id]);
-
-  const unreadCount = useMemo(() => {
-    return issues.filter((issue) => {
-      const key = getIssueKey(issue, projectKey);
-      return key && !readMap[key];
-    }).length;
-  }, [issues, projectKey, readMap]);
-
-  const selectedIssueFromList = useMemo(() => {
-    if (!selectedIssueParam) return null;
-    return (
-      issues.find((issue) => getIssueKey(issue, projectKey) === selectedIssueParam) || null
-    );
-  }, [issues, projectKey, selectedIssueParam]);
-
-  const selectedIssue = issueDetailData?.issue || selectedIssueFromList;
-
-  useEffect(() => {
-    setTitleDraft(selectedIssue?.title || '');
-  }, [selectedIssue?.title]);
-
-  const activity = historyData?.history ?? [];
-
-  const selectedIssueComments = useMemo(() => {
-    const serverComments = selectedIssue?.comments ?? [];
-    const localComments = selectedIssueParam
-      ? localCommentsByIssue[selectedIssueParam] || []
-      : [];
-
-    const merged = [...serverComments, ...localComments];
-    const dedupedMap = new Map();
-    for (const item of merged) {
-      if (!item?.id) continue;
-      dedupedMap.set(item.id, item);
-    }
-
-    return [...dedupedMap.values()].sort(
-      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-    );
-  }, [localCommentsByIssue, selectedIssue?.comments, selectedIssueParam]);
+  }, [activeFilter, issues, user?.id]);
 
   const openIssue = (issueKey) => {
     const next = new URLSearchParams(searchParams);
     next.set('issue', issueKey);
-
-    navigate(
-      {
-        pathname: location.pathname,
-        search: `?${next.toString()}`,
-      },
-      { replace: false },
-    );
+    navigate({ pathname: location.pathname, search: `?${next.toString()}` }, { replace: false });
   };
 
   const closeIssue = () => {
     const next = new URLSearchParams(searchParams);
     next.delete('issue');
-
     navigate(
-      {
-        pathname: location.pathname,
-        search: next.toString() ? `?${next.toString()}` : '',
-      },
-      { replace: true },
+      { pathname: location.pathname, search: next.toString() ? `?${next.toString()}` : '' },
+      { replace: true }
     );
-
-    setIsEditingTitle(false);
-    setCommentDraft('');
   };
 
-  const markAllRead = () => {
-    setReadMap((prev) => {
-      const next = { ...prev };
-      for (const issue of issues) {
-        const key = getIssueKey(issue, projectKey);
-        if (key) next[key] = true;
-      }
-      return next;
-    });
-  };
-
-  const updateIssueField = async (payload, successMessage) => {
+  const updateField = async (payload, msg = 'Updated') => {
     if (!selectedIssueParam) return;
-
     try {
-      await updateIssue({
-        orgSlug,
-        projectSlug,
-        issueNumber: selectedIssueParam,
-        payload,
-      });
-      toast.success(successMessage);
-    } catch (error) {
-      toast.error(error?.response?.data?.message || 'Failed to update issue');
+      await updateIssue({ orgSlug, projectSlug, issueNumber: selectedIssueParam, ...payload });
+      toast.success(msg);
+    } catch {
+      toast.error('Update failed');
     }
   };
 
-  const handleTitleSave = async () => {
-    const nextTitle = titleDraft.trim();
-
-    if (!selectedIssue || !nextTitle || nextTitle === selectedIssue.title) {
-      setIsEditingTitle(false);
-      return;
-    }
-
-    await updateIssueField({ title: nextTitle }, 'Issue title updated');
-    setIsEditingTitle(false);
-  };
-
-  const handleSendComment = async () => {
-    const content = commentDraft.trim();
-    if (!selectedIssueParam || !content) return;
-
+  const sendComment = async () => {
+    if (!commentDraft.trim()) return;
     try {
-      const response = await createComment({
-        orgSlug,
-        projectSlug,
-        issueNumber: selectedIssueParam,
-        payload: { content },
-      });
-
-      if (response?.comment) {
-        setLocalCommentsByIssue((prev) => {
-          const existing = prev[selectedIssueParam] || [];
-          return {
-            ...prev,
-            [selectedIssueParam]: [...existing, response.comment],
-          };
-        });
-      }
-
+      await createComment({ orgSlug, projectSlug, issueNumber: selectedIssueParam, content: commentDraft });
       setCommentDraft('');
-      toast.success('Comment sent');
-    } catch (error) {
-      toast.error(error?.response?.data?.message || 'Failed to send comment');
+      toast.success('Comment added');
+    } catch {
+      toast.error('Failed to send comment');
     }
   };
-
-  const selectedStatusValue = selectedIssue?.status?.id || '';
-  const selectedPriorityValue = selectedIssue?.priority || 'medium';
-  const selectedAssigneeValue = selectedIssue?.assignee?.id || 'unassigned';
 
   return (
-    <div className="flex h-full bg-[#F4F5F7] text-[#172B4D]">
-      <aside className="w-80 shrink-0 border-r border-[#DFE1E6] bg-white">
-        <div className="border-b border-[#DFE1E6] px-4 py-4">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <h1 className="text-[22px] font-extrabold leading-none text-[#172B4D]">Inbox</h1>
-              <Badge className="rounded-full border-0 bg-[#0052CC] px-2 py-0.5 text-[11px] font-semibold text-white">
-                {unreadCount}
-              </Badge>
+    <TooltipProvider delayDuration={300}>
+      <div className="flex h-full overflow-hidden bg-background text-foreground">
+
+        {/* ── Sidebar ─────────────────────────────────────────────────── */}
+        <aside className="w-[300px] xl:w-[340px] shrink-0 flex flex-col border-r border-border bg-background">
+
+          {/* Sidebar Header */}
+          <div className="px-4 pt-4 pb-3 border-b border-border space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Inbox className="size-4 text-muted-foreground" />
+                <h1 className="text-sm font-semibold tracking-tight">Inbox</h1>
+                {!isIssuesLoading && (
+                  <span className="text-[11px] font-medium bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">
+                    {filteredIssues.length}
+                  </span>
+                )}
+              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                  >
+                    <CheckCheck className="size-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Mark all as read</TooltipContent>
+              </Tooltip>
             </div>
 
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={markAllRead}
-              className="h-8 px-2 text-[#5E6C84] hover:bg-[#F4F5F7] hover:text-[#172B4D]"
-            >
-              <CheckCheck className="mr-1 size-4" />
-              Mark all read
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap gap-1.5">
-            {FILTER_TABS.map((tab) => {
-              const isActive = activeFilter === tab.key;
-              return (
+            {/* Filter chips */}
+            <div className="flex gap-1 flex-wrap">
+              {FILTER_TABS.map((tab) => (
                 <button
                   key={tab.key}
-                  type="button"
                   onClick={() => setActiveFilter(tab.key)}
-                  className={`rounded-full px-2.5 py-1 text-xs font-semibold transition-colors ${
-                    isActive
-                      ? 'bg-[#0052CC] text-white'
-                      : 'bg-[#EBECF0] text-[#5E6C84] hover:bg-[#DFE1E6]'
-                  }`}
+                  className={cn(
+                    'rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors',
+                    activeFilter === tab.key
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  )}
                 >
                   {tab.label}
                 </button>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
 
-        <ScrollArea className="h-[calc(100%-109px)]">
-          {isIssuesLoading ? (
-            <ListSkeleton />
-          ) : filteredIssues.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <Inbox className="mx-auto mb-3 size-8 text-[#5E6C84]/70" />
-              <p className="text-sm font-semibold text-[#172B4D]">No issues in this view</p>
-              <p className="mt-1 text-xs text-[#5E6C84]">Try another filter tab.</p>
+          {/* Issue List */}
+          <ScrollArea className="flex-1">
+            {isIssuesLoading ? (
+              <div className="p-4 space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-3 w-1/3" />
+                    <Skeleton className="h-4 w-5/6" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                ))}
+              </div>
+            ) : filteredIssues.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+                <div className="size-10 rounded-full bg-muted flex items-center justify-center mb-3">
+                  <Inbox className="size-5 text-muted-foreground" />
+                </div>
+                <p className="text-sm font-medium text-foreground">All clear</p>
+                <p className="text-xs text-muted-foreground mt-1">No issues match this filter.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border/60">
+                {filteredIssues.map((issue) => {
+                  const issueKey = getIssueKey(issue, projectKey);
+                  return (
+                    <IssueCard
+                      key={issue.id}
+                      issue={issue}
+                      issueKey={issueKey}
+                      isSelected={issueKey === selectedIssueParam}
+                      onClick={() => openIssue(issueKey)}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </ScrollArea>
+        </aside>
+
+        {/* ── Detail Panel ─────────────────────────────────────────────── */}
+        <main className="flex-1 flex min-w-0 overflow-hidden">
+          {!selectedIssueParam ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
+              <div className="size-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
+                <Inbox className="size-6 text-muted-foreground" />
+              </div>
+              <h2 className="text-base font-semibold text-foreground">No issue selected</h2>
+              <p className="text-sm text-muted-foreground mt-1 max-w-xs">
+                Pick an issue from the list to view its details, comments, and activity.
+              </p>
+            </div>
+          ) : isIssueDetailLoading ? (
+            <div className="flex-1 p-8 space-y-6 max-w-3xl">
+              <Skeleton className="h-5 w-24" />
+              <Skeleton className="h-8 w-3/4" />
+              <div className="flex gap-2">
+                <Skeleton className="h-7 w-20 rounded-md" />
+                <Skeleton className="h-7 w-20 rounded-md" />
+                <Skeleton className="h-7 w-20 rounded-md" />
+              </div>
+              <Skeleton className="h-32 w-full rounded-lg" />
             </div>
           ) : (
-            <div className="space-y-2 p-3">
-              {filteredIssues.map((issue) => {
-                const issueKey = getIssueKey(issue, projectKey);
-                const isSelected = issueKey === selectedIssueParam;
-                const priorityColor = PRIORITY_BAR_COLOR[issue?.priority] || PRIORITY_BAR_COLOR.low;
-                const isUnread = issueKey && !readMap[issueKey];
-
-                return (
-                  <button
-                    key={issue.id}
-                    type="button"
-                    onClick={() => openIssue(issueKey)}
-                    className={`relative w-full rounded-md border border-[#DFE1E6] bg-white text-left shadow-[0_1px_3px_rgba(9,30,66,0.08)] transition-colors hover:bg-[#F4F5F7] ${
-                      isSelected ? 'bg-[#DEEBFF]' : ''
-                    }`}
-                  >
-                    <span
-                      className="absolute left-0 top-0 h-full w-0.75 rounded-l-md"
-                      style={{ backgroundColor: isSelected ? '#0052CC' : priorityColor }}
-                    />
-
-                    <div className="p-3 pl-4">
-                      <div className="mb-1 flex items-start justify-between gap-2">
-                        <span className="font-mono text-[11px] text-[#5E6C84]">{issueKey}</span>
-                        <div className="flex items-center gap-2">
-                          {isUnread && <span className="size-2 rounded-full bg-[#0052CC]" />}
-                          <span className="text-[11px] text-[#5E6C84]">
-                            {toRelativeTime(issue?.updatedAt || issue?.createdAt)}
-                          </span>
-                        </div>
-                      </div>
-
-                      <p className="truncate text-[14px] font-semibold text-[#172B4D]">{issue.title}</p>
-
-                      <div className="mt-2 flex items-center justify-between gap-2">
-                        <div className="flex min-w-0 items-center gap-2">
-                          <span className="truncate text-[12px] text-[#5E6C84]">
-                            {projectContext?.name || project?.name || 'Project'}
-                          </span>
-                          <Avatar className="size-5 border border-[#DFE1E6]">
-                            <AvatarImage src={issue?.assignee?.avatarUrl || ''} alt={issue?.assignee?.displayName || 'Assignee'} />
-                            <AvatarFallback className="text-[9px]">
-                              {getUserInitials(issue?.assignee?.displayName || issue?.assignee?.email)}
-                            </AvatarFallback>
-                          </Avatar>
-                        </div>
-
-                        <Badge
-                          className={`border-0 text-[10px] font-semibold ${
-                            STATUS_BADGE_CLASS_BY_CATEGORY[issue?.status?.category] || 'bg-[#DFE1E6] text-[#42526E]'
-                          }`}
-                        >
-                          {issue?.status?.name || 'No status'}
-                        </Badge>
-                      </div>
+            <>
+              {/* Main content column */}
+              <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                
+                {/* Issue Header */}
+                <header className="flex-shrink-0 px-8 py-5 border-b border-border">
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <PriorityIcon priority={selectedIssue?.priority} />
+                      <span className="text-xs font-mono font-medium text-muted-foreground tracking-wider uppercase">
+                        {getIssueKey(selectedIssue, projectKey)}
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className={cn('text-[10px] font-medium border ml-1', PRIORITY_CONFIG[selectedIssue?.priority || 'medium']?.bg)}
+                      >
+                        {PRIORITY_CONFIG[selectedIssue?.priority || 'medium']?.label}
+                      </Badge>
                     </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </ScrollArea>
-      </aside>
-
-      <section className="relative flex min-w-0 flex-1 flex-col">
-        {!selectedIssueParam ? (
-          <div className="flex h-full flex-col items-center justify-center px-8 text-center">
-            <div className="mb-5 flex size-20 items-center justify-center rounded-full bg-white shadow-[0_1px_3px_rgba(9,30,66,0.08)]">
-              <Inbox className="size-9 text-[#0052CC]" />
-            </div>
-            <h2 className="text-xl font-semibold text-[#172B4D]">Select an issue to get started</h2>
-            <p className="mt-2 max-w-md text-sm text-[#5E6C84]">
-              Pick an item from the inbox to view details, update status, and collaborate in comments.
-            </p>
-          </div>
-        ) : isIssueDetailLoading ? (
-          <DetailSkeleton />
-        ) : !selectedIssue ? (
-          <div className="flex h-full items-center justify-center px-8 text-center">
-            <p className="text-sm text-[#5E6C84]">Issue not found. Choose another one from the list.</p>
-          </div>
-        ) : (
-          <>
-            <div className="flex items-start justify-between border-b border-[#DFE1E6] bg-white px-6 py-4">
-              <div className="min-w-0">
-                <p className="mb-1 font-mono text-xs text-[#5E6C84]">{getIssueKey(selectedIssue, projectKey)}</p>
-
-                {isEditingTitle ? (
-                  <input
-                    value={titleDraft}
-                    onChange={(event) => setTitleDraft(event.target.value)}
-                    onBlur={handleTitleSave}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter') {
-                        event.preventDefault();
-                        void handleTitleSave();
-                      }
-
-                      if (event.key === 'Escape') {
-                        setTitleDraft(selectedIssue.title || '');
-                        setIsEditingTitle(false);
-                      }
-                    }}
-                    autoFocus
-                    className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1 text-[20px] font-bold text-[#172B4D] outline-none focus:border-[#0052CC]"
-                  />
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setIsEditingTitle(true)}
-                    className="truncate text-left text-[20px] font-bold text-[#172B4D]"
-                  >
-                    {selectedIssue.title}
-                  </button>
-                )}
-              </div>
-
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={closeIssue}
-                className="h-8 w-8 p-0 text-[#5E6C84] hover:bg-[#F4F5F7] hover:text-[#172B4D]"
-              >
-                <X className="size-4" />
-              </Button>
-            </div>
-
-            <div className="border-b border-[#DFE1E6] bg-white px-6 py-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <Select
-                  value={selectedStatusValue || undefined}
-                  onValueChange={(statusId) => {
-                    void updateIssueField({ statusId }, 'Status updated');
-                  }}
-                >
-                  <SelectTrigger className="h-9 min-w-42.5 border-[#DFE1E6] bg-white text-xs">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statuses.map((status) => (
-                      <SelectItem key={status.id} value={status.id}>
-                        {status.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Select
-                  value={selectedPriorityValue}
-                  onValueChange={(priority) => {
-                    void updateIssueField({ priority }, 'Priority updated');
-                  }}
-                >
-                  <SelectTrigger className="h-9 min-w-35 border-[#DFE1E6] bg-white text-xs">
-                    <SelectValue placeholder="Priority" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PRIORITY_OPTIONS.map((priority) => (
-                      <SelectItem key={priority.value} value={priority.value}>
-                        {priority.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Select
-                  value={selectedAssigneeValue}
-                  onValueChange={(assigneeId) => {
-                    const normalized = assigneeId === 'unassigned' ? null : assigneeId;
-                    void updateIssueField({ assigneeId: normalized }, 'Assignee updated');
-                  }}
-                >
-                  <SelectTrigger className="h-9 min-w-50 border-[#DFE1E6] bg-white text-xs">
-                    <SelectValue placeholder="Assignee" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="unassigned">Unassigned</SelectItem>
-                    {members.map((member) => (
-                      <SelectItem key={member.user.id} value={member.user.id}>
-                        {member.user.displayName || member.user.email}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Badge className="h-9 border border-[#DFE1E6] bg-white px-3 text-xs font-semibold text-[#5E6C84]">
-                  {toDueDateLabel(selectedIssue?.dueDate)}
-                </Badge>
-              </div>
-            </div>
-
-            <div className="flex min-h-0 flex-1 flex-col px-6 py-4">
-              <div className="mb-4 rounded-md border border-[#DFE1E6] bg-white p-4 shadow-[0_1px_3px_rgba(9,30,66,0.08)]">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#5E6C84]">Description</p>
-                {selectedIssue?.description ? (
-                  <div className="whitespace-pre-wrap text-sm leading-6 text-[#172B4D]">
-                    {selectedIssue.description}
-                  </div>
-                ) : (
-                  <p className="text-sm text-[#5E6C84]">No description</p>
-                )}
-              </div>
-
-              <Tabs defaultValue="comments" className="min-h-0 flex-1">
-                <TabsList className="mb-3 bg-[#EBECF0]">
-                  <TabsTrigger value="comments" className="data-[state=active]:bg-white">
-                    <MessageSquareText className="size-4" />
-                    Comments
-                  </TabsTrigger>
-                  <TabsTrigger value="activity" className="data-[state=active]:bg-white">
-                    Activity
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="comments" className="min-h-0 flex-1">
-                  <ScrollArea className="h-[calc(100%-96px)] rounded-md border border-[#DFE1E6] bg-white p-4">
-                    {!selectedIssueComments.length ? (
-                      <p className="text-sm text-[#5E6C84]">No comments yet</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {selectedIssueComments.map((comment) => (
-                          <div key={comment.id} className="rounded-md border border-[#DFE1E6] bg-[#FAFBFC] p-3">
-                            <div className="mb-1 flex items-center gap-2">
-                              <Avatar className="size-6 border border-[#DFE1E6]">
-                                <AvatarImage src={comment?.user?.avatarUrl || ''} alt={comment?.user?.displayName || 'User'} />
-                                <AvatarFallback className="text-[10px]">
-                                  {getUserInitials(comment?.user?.displayName || comment?.user?.email)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="text-xs font-semibold text-[#172B4D]">
-                                {comment?.user?.displayName || 'Unknown user'}
-                              </span>
-                              <span className="text-[11px] text-[#5E6C84]">{toRelativeTime(comment.createdAt)}</span>
-                            </div>
-                            <p className="text-sm text-[#172B4D]">{comment.content}</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </ScrollArea>
-
-                  <div className="mt-3 flex items-end gap-2">
-                    <Textarea
-                      value={commentDraft}
-                      onChange={(event) => setCommentDraft(event.target.value)}
-                      placeholder="Write a comment"
-                      className="min-h-18 border-[#DFE1E6] bg-white text-sm"
-                    />
                     <Button
-                      type="button"
-                      onClick={() => {
-                        void handleSendComment();
-                      }}
-                      disabled={!commentDraft.trim() || isSendingComment}
-                      className="h-10 bg-[#0052CC] px-4 hover:bg-[#0065FF]"
+                      variant="ghost"
+                      size="icon"
+                      onClick={closeIssue}
+                      className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
                     >
-                      <SendHorizontal className="mr-1 size-4" />
-                      Send
+                      <X className="size-4" />
                     </Button>
                   </div>
-                </TabsContent>
 
-                <TabsContent value="activity" className="min-h-0 flex-1">
-                  <ScrollArea className="h-[calc(100%-8px)] rounded-md border border-[#DFE1E6] bg-white p-4">
-                    {isHistoryLoading ? (
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-[70%]" />
-                        <Skeleton className="h-4 w-[65%]" />
-                        <Skeleton className="h-4 w-[60%]" />
-                      </div>
-                    ) : !activity.length ? (
-                      <p className="text-sm text-[#5E6C84]">No activity yet</p>
-                    ) : (
-                      <ul className="space-y-2">
-                        {activity.map((entry) => (
-                          <li key={entry.id} className="text-sm text-[#172B4D]">
-                            <span className="font-semibold">{entry?.changer?.displayName || 'Someone'}</span>{' '}
-                            {entry.field === 'status' ? 'moved status' : `updated ${entry.field}`}{' '}
-                            <span className="text-[#5E6C84]">{toRelativeTime(entry.createdAt)}</span>
-                          </li>
+                  <EditableTitle
+                    value={selectedIssue?.title || ''}
+                    onSave={(t) => updateField({ title: t }, 'Title updated')}
+                  />
+
+                  {/* Quick action selects */}
+                  <div className="flex flex-wrap items-center gap-2 mt-4">
+                    <Select
+                      value={selectedIssue?.status?.id || ''}
+                      onValueChange={(id) => updateField({ statusId: id }, 'Status updated')}
+                    >
+                      <SelectTrigger className="h-7 text-xs border-border bg-muted/40 hover:bg-muted gap-1.5 w-auto pr-2 font-medium">
+                        <StatusDot status={selectedIssue?.status} />
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {statuses.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            <div className="flex items-center gap-2">
+                              <StatusDot status={s} />
+                              {s.name}
+                            </div>
+                          </SelectItem>
                         ))}
-                      </ul>
-                    )}
-                  </ScrollArea>
-                </TabsContent>
-              </Tabs>
-            </div>
-          </>
-        )}
+                      </SelectContent>
+                    </Select>
 
-        {isUpdatingIssue && (
-          <div className="pointer-events-none absolute bottom-4 right-4 rounded-full bg-[#172B4D] px-3 py-1 text-xs font-semibold text-white shadow-lg">
-            Updating issue...
-          </div>
-        )}
-      </section>
-    </div>
+                    <Select
+                      value={selectedIssue?.assignee?.id || 'unassigned'}
+                      onValueChange={(id) =>
+                        updateField({ assigneeId: id === 'unassigned' ? null : id }, 'Assignee updated')
+                      }
+                    >
+                      <SelectTrigger className="h-7 text-xs border-border bg-muted/40 hover:bg-muted gap-1.5 w-auto pr-2 font-medium">
+                        {selectedIssue?.assignee ? (
+                          <Avatar className="size-4">
+                            <AvatarImage src={selectedIssue.assignee.avatarUrl} />
+                            <AvatarFallback className="text-[8px]">
+                              {getUserInitials(selectedIssue.assignee.displayName)}
+                            </AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <User className="size-3.5 text-muted-foreground" />
+                        )}
+                        <SelectValue placeholder="Assignee" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="unassigned">
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <User className="size-3.5" />
+                            Unassigned
+                          </div>
+                        </SelectItem>
+                        {members.map((m) => (
+                          <SelectItem key={m.user.id} value={m.user.id}>
+                            <div className="flex items-center gap-2">
+                              <Avatar className="size-4">
+                                <AvatarImage src={m.user.avatarUrl} />
+                                <AvatarFallback className="text-[8px]">
+                                  {getUserInitials(m.user.displayName)}
+                                </AvatarFallback>
+                              </Avatar>
+                              {m.user.displayName}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </header>
+
+                {/* Body */}
+                <ScrollArea className="flex-1">
+                  <div className="px-8 py-6 max-w-3xl space-y-6">
+
+                    {/* Description */}
+                    <section>
+                      <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">
+                        Description
+                      </h3>
+                      <EditableDescription
+                        value={selectedIssue?.description}
+                        onSave={(desc) => updateField({ description: desc }, 'Description updated')}
+                      />
+                    </section>
+
+                    <Separator />
+
+                    {/* Tabs */}
+                    <Tabs defaultValue="comments" className="w-full">
+                      <TabsList className="bg-muted/50 h-8 p-0.5 w-fit rounded-md">
+                        <TabsTrigger
+                          value="comments"
+                          className="h-7 px-3 text-xs rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm gap-1.5"
+                        >
+                          <MessageSquare className="size-3" />
+                          Comments
+                          {selectedIssue?.comments?.length ? (
+                            <span className="ml-0.5 text-[10px] font-semibold text-muted-foreground">
+                              {selectedIssue.comments.length}
+                            </span>
+                          ) : null}
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="activity"
+                          className="h-7 px-3 text-xs rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm gap-1.5"
+                        >
+                          <Activity className="size-3" />
+                          Activity
+                        </TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent value="comments" className="mt-5 space-y-4">
+                        {/* Existing comments */}
+                        {selectedIssue?.comments?.length > 0 && (
+                          <div className="space-y-4">
+                            {selectedIssue.comments.map((comment) => (
+                              <div key={comment.id} className="flex gap-3">
+                                <Avatar className="size-7 mt-0.5 shrink-0">
+                                  <AvatarImage src={comment.user?.avatarUrl} />
+                                  <AvatarFallback className="text-[10px] bg-primary/10 text-primary font-semibold">
+                                    {getUserInitials(comment.user?.displayName)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-xs font-semibold text-foreground">
+                                      {comment.user?.displayName || 'Unknown'}
+                                    </span>
+                                    <span className="text-[11px] text-muted-foreground">
+                                      {toRelativeTime(comment.createdAt)}
+                                    </span>
+                                  </div>
+                                  <div className="text-sm text-foreground/80 bg-muted/30 rounded-lg px-3 py-2 border border-border/60">
+                                    {comment.content}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* New comment box */}
+                        <div className="flex gap-3 pt-2">
+                          <Avatar className="size-7 mt-0.5 shrink-0">
+                            <AvatarImage src={user?.avatarUrl} />
+                            <AvatarFallback className="text-[10px] bg-primary/10 text-primary font-semibold">
+                              {getUserInitials(user?.displayName)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 space-y-2">
+                            <Textarea
+                              placeholder="Add a comment..."
+                              className="min-h-[80px] resize-none text-sm focus-visible:ring-1 bg-muted/20 border-border/80"
+                              value={commentDraft}
+                              onChange={(e) => setCommentDraft(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) sendComment();
+                              }}
+                            />
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] text-muted-foreground">⌘ + Enter to send</span>
+                              <Button
+                                size="sm"
+                                className="h-7 text-xs gap-1.5"
+                                disabled={!commentDraft.trim() || isSendingComment}
+                                onClick={sendComment}
+                              >
+                                <Send className="size-3" />
+                                Comment
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="activity" className="mt-5">
+                        {isIssueHistoryLoading ? (
+                          <div className="space-y-4 py-4">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-2/3" />
+                          </div>
+                        ) : history.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center py-10 text-center">
+                            <Activity className="size-8 text-muted-foreground/30 mb-2" />
+                            <p className="text-sm text-muted-foreground">Activity log is empty.</p>
+                          </div>
+                        ) : (
+                          <ScrollArea className="h-[300px] xl:h-[400px] w-full pr-4">
+                            <div className="space-y-4">
+                              {history.map((event) => (
+                                <div key={event.id} className="flex gap-3 text-sm">
+                                  <Avatar className="size-7 mt-0.5 shrink-0 border border-border">
+                                    <AvatarImage src={event.changer?.avatarUrl} />
+                                    <AvatarFallback className="text-[10px] bg-primary/10 text-primary font-semibold">
+                                      {getUserInitials(event.changer?.displayName)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center flex-wrap gap-1.5 text-xs text-foreground/90">
+                                      <span className="font-semibold text-foreground">
+                                        {event.changer?.displayName || 'Unknown'}
+                                      </span>
+                                      <span className="text-muted-foreground">
+                                        updated
+                                      </span>
+                                      {event.field && (
+                                        <span className="font-medium text-foreground">
+                                          {event.field}
+                                        </span>
+                                      )}
+                                      {event.oldValue && event.newValue && (
+                                        <span className="text-muted-foreground ml-1">
+                                          from <span className="line-through">{
+                                            event.field === 'status' 
+                                            ? statuses.find(s => s.id === event.oldValue)?.name || event.oldValue 
+                                            : event.field === 'assignee' 
+                                            ? members.find(m => m.user.id === event.oldValue)?.user.displayName || event.oldValue
+                                            : event.oldValue
+                                          }</span> to <span className="font-medium text-foreground">{
+                                            event.field === 'status' 
+                                            ? statuses.find(s => s.id === event.newValue)?.name || event.newValue 
+                                            : event.field === 'assignee' 
+                                            ? members.find(m => m.user.id === event.newValue)?.user.displayName || event.newValue
+                                            : event.newValue
+                                          }</span>
+                                        </span>
+                                      )}
+                                      <span className="text-[10px] text-muted-foreground ml-auto">
+                                        {toRelativeTime(event.createdAt)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </ScrollArea>
+                        )}
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                </ScrollArea>
+              </div>
+
+              {/* ── Metadata Sidebar ─────────────────────────────────────── */}
+              <aside className="w-[220px] xl:w-[240px] shrink-0 border-l border-border bg-muted/10 overflow-y-auto">
+                <div className="px-4 py-5 space-y-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">
+                    Details
+                  </p>
+
+                  <div className="divide-y divide-border/60">
+                    {/* Priority */}
+                    <div className="flex items-center justify-between py-2.5">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Zap className="size-3.5 shrink-0" />
+                        <span>Priority</span>
+                      </div>
+                      <Select
+                        value={selectedIssue?.priority || 'medium'}
+                        onValueChange={(p) => updateField({ priority: p }, 'Priority updated')}
+                      >
+                        <SelectTrigger className="h-6 text-[11px] border-0 bg-transparent p-0 shadow-none focus:ring-0 gap-1 w-auto font-medium text-foreground hover:text-primary [&>svg]:hidden">
+                          <PriorityIcon priority={selectedIssue?.priority || 'medium'} />
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent align="end">
+                          {Object.entries(PRIORITY_CONFIG).map(([val, cfg]) => {
+                            const Icon = cfg.icon;
+                            return (
+                              <SelectItem key={val} value={val}>
+                                <div className="flex items-center gap-2">
+                                  <Icon className={cn('size-3.5', cfg.class)} />
+                                  {cfg.label}
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Status */}
+                    <div className="flex items-center justify-between py-2.5">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Circle className="size-3.5 shrink-0" />
+                        <span>Status</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <StatusDot status={selectedIssue?.status} />
+                        <span className="text-[11px] font-medium text-foreground">
+                          {selectedIssue?.status?.name || 'Todo'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Assignee */}
+                    <div className="flex items-center justify-between py-2.5">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <User className="size-3.5 shrink-0" />
+                        <span>Assignee</span>
+                      </div>
+                      {selectedIssue?.assignee ? (
+                        <div className="flex items-center gap-1.5">
+                          <Avatar className="size-4">
+                            <AvatarImage src={selectedIssue.assignee.avatarUrl} />
+                            <AvatarFallback className="text-[8px] bg-primary/10 text-primary">
+                              {getUserInitials(selectedIssue.assignee.displayName)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-[11px] font-medium text-foreground max-w-[80px] truncate">
+                            {selectedIssue.assignee.displayName}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-[11px] text-muted-foreground">None</span>
+                      )}
+                    </div>
+
+                    {/* Sprint */}
+                    <div className="flex items-center justify-between py-2.5">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <CalendarDays className="size-3.5 shrink-0" />
+                        <span>Sprint</span>
+                      </div>
+                      <Select
+                        value={selectedIssue?.sprint?.id || 'backlog'}
+                        onValueChange={(id) =>
+                          updateField({ sprintId: id === 'backlog' ? null : id }, 'Sprint updated')
+                        }
+                      >
+                        <SelectTrigger className="h-6 text-[11px] border-0 bg-transparent p-0 shadow-none focus:ring-0 gap-1 w-auto font-medium text-foreground hover:text-primary [&>svg]:hidden text-right justify-end max-w-[80px] truncate">
+                          <span>{selectedIssue?.sprint?.name || 'Backlog'}</span>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent align="end">
+                          <SelectItem value="backlog">
+                            <span className="font-medium text-muted-foreground">Backlog</span>
+                          </SelectItem>
+                          {sprints.map((s) => (
+                            <SelectItem key={s.id} value={s.id}>
+                              {s.name} {s.status === 'active' && '(Active)'}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Reporter */}
+                    <div className="flex items-center justify-between py-2.5">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <User className="size-3.5 shrink-0" />
+                        <span>Reporter</span>
+                      </div>
+                      {selectedIssue?.reporter ? (
+                        <div className="flex items-center gap-1.5">
+                          <Avatar className="size-4">
+                            <AvatarImage src={selectedIssue.reporter.avatarUrl} />
+                            <AvatarFallback className="text-[8px] bg-primary/10 text-primary">
+                              {getUserInitials(selectedIssue.reporter.displayName)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-[11px] font-medium text-foreground max-w-[80px] truncate">
+                            {selectedIssue.reporter.displayName}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-[11px] text-muted-foreground">Unknown</span>
+                      )}
+                    </div>
+
+                    {/* Created */}
+                    <div className="flex items-center justify-between py-2.5">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <CalendarDays className="size-3.5 shrink-0" />
+                        <span>Created</span>
+                      </div>
+                      <span className="text-[11px] font-medium text-foreground">
+                        {selectedIssue?.createdAt
+                          ? new Date(selectedIssue.createdAt).toLocaleDateString('en-US', {
+                              month: 'short', day: 'numeric',
+                            })
+                          : '—'}
+                      </span>
+                    </div>
+
+                    {/* Updated */}
+                    <div className="flex items-center justify-between py-2.5">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Clock className="size-3.5 shrink-0" />
+                        <span>Updated</span>
+                      </div>
+                      <span className="text-[11px] font-medium text-foreground">
+                        {toRelativeTime(selectedIssue?.updatedAt)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            </>
+          )}
+        </main>
+      </div>
+    </TooltipProvider>
   );
 }

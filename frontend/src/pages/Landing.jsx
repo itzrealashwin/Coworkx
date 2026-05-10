@@ -1272,7 +1272,7 @@ function HeroSection() {
             </motion.div>
 
             {/* Floating chips */}
-            <motion.div
+            {/* <motion.div
               animate={{ y: [0, -8, 0] }}
               transition={{
                 duration: 3,
@@ -1301,7 +1301,7 @@ function HeroSection() {
               <span style={{ fontSize: 12, fontWeight: 600, color: C.navy }}>
                 Ashwin assigned you #34
               </span>
-            </motion.div>
+            </motion.div> */}
 
             <motion.div
               animate={{ y: [0, 10, 0] }}

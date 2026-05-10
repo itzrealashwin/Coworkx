@@ -8,6 +8,22 @@ export const issueService = {
     return response.data;
   },
 
+  createStatus: async ({ orgSlug, projectSlug, ...data }) => {
+    const response = await api.post(
+      `/issues/${orgSlug}/projects/${projectSlug}/statuses`,
+      data
+    );
+    return response.data;
+  },
+
+  updateStatus: async ({ orgSlug, projectSlug, statusId, ...data }) => {
+    const response = await api.patch(
+      `/issues/${orgSlug}/projects/${projectSlug}/statuses/${statusId}`,
+      data
+    );
+    return response.data;
+  },
+
   create: async ({ orgSlug, projectSlug, ...data }) => {
     const response = await api.post(
       `/issues/${orgSlug}/projects/${projectSlug}/issues`,
@@ -17,8 +33,12 @@ export const issueService = {
   },
 
   list: async ({ orgSlug, projectSlug, sprint, status, assignee, type }) => {
+    const url = projectSlug
+      ? `/issues/${orgSlug}/projects/${projectSlug}/issues`
+      : `/issues/${orgSlug}/issues`;
+
     const response = await api.get(
-      `/issues/${orgSlug}/projects/${projectSlug}/issues`,
+      url,
       {
         params: { sprint, status, assignee, type },
       }

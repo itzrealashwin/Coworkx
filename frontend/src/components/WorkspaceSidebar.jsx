@@ -62,7 +62,8 @@ function getActiveKey(pathname, projectSlug) {
 }
 
 function getInitials(name = "") {
-  return name.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase() || "W"
+  if (!name) return "W";
+  return name.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase() || "W";
 }
 
 // ─── SectionLabel ─────────────────────────────────────────────────────────────

@@ -122,4 +122,11 @@ projectRouter.get(
 // ✅ Mount router with params
 router.use('/:slug/projects/:projectSlug', projectRouter);
 
+// ✅ Scoped router for organization-level routes (no projectSlug)
+const orgRouter = Router({ mergeParams: true });
+orgRouter.use(requireProjectAccess);
+orgRouter.get('/issues', issueController.listIssues);
+
+router.use('/:slug', orgRouter);
+
 export default router;

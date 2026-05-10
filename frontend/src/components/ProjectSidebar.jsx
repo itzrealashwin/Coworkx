@@ -22,8 +22,6 @@ import {
   ChevronLeft,
 } from "lucide-react";
 
-const POLL_INTERVAL_MS = 15000;
-
 const formatSprintStatus = (status) => {
   if (!status) return "Idle";
   return status
@@ -56,8 +54,6 @@ export default function ProjectSidebar({ project, orgSlug }) {
     {},
     {
       enabled: Boolean(orgSlug && projectSlug),
-      refetchInterval: POLL_INTERVAL_MS,
-      refetchIntervalInBackground: true,
     },
   );
 
@@ -67,8 +63,6 @@ export default function ProjectSidebar({ project, orgSlug }) {
     {},
     {
       enabled: Boolean(orgSlug && projectSlug),
-      refetchInterval: POLL_INTERVAL_MS,
-      refetchIntervalInBackground: true,
     },
   );
 

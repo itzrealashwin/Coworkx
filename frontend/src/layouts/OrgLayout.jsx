@@ -1,12 +1,20 @@
 import { Outlet, useParams, Navigate } from "react-router-dom"
 import WorkspaceSidebar from "@/components/WorkspaceSidebar"
-import { useOrganization } from "@/hooks/useOrganizations"
+import { useOrganization, useOrganizations } from "@/hooks/useOrganizations"
 
 export default function OrgLayout() {
   const { orgSlug } = useParams();
   const { data: orgData, isLoading, isError } = useOrganization(orgSlug);
+  const { data: organizationsData, isLoading: isOrganizationsLoading } = useOrganizations();
 
-  if (isLoading) {
+  const organization = orgData?.organization ?? orgData;
+  const organizations = Array.isArray(organizationsData?.organizations)
+    ? organizationsData.organizations
+    : Array.isArray(organizationsData)
+      ? organizationsData
+      : [];
+
+  if (isLoading || isOrganizationsLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -14,9 +22,15 @@ export default function OrgLayout() {
     );
   }
 
-  // If organization not found or user has no access, maybe redirect to home
-  if (isError || !orgData) {
-     return <Navigate to="/" replace />;
+  // If org is missing/inaccessible, navigate to a safe fallback instead of root to avoid redirect loops.
+  if (isError || !organization) {
+    const fallbackOrganization = organizations.find((org) => org?.slug && org.slug !== orgSlug);
+
+    if (fallbackOrganization?.slug) {
+      return <Navigate to={`/${fallbackOrganization.slug}`} replace />;
+    }
+
+    return <Navigate to="/orgs/new" replace />;
   }
 
   return (

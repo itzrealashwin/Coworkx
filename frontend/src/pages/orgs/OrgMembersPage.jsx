@@ -236,7 +236,7 @@ function InviteMemberDialog({ open, onOpenChange, orgSlug, sendInviteMutation })
 }
 
 // ─── Members Table ────────────────────────────────────────────────────────────
-function MembersTable({ members, currentUser, updateRoleMutation, onRemoveClick }) {
+function MembersTable({ members, orgSlug, currentUser, updateRoleMutation, onRemoveClick }) {
   return (
     <div className="rounded-[8px] border border-[#DFE1E6] overflow-hidden bg-white shadow-[0_1px_3px_rgba(9,30,66,0.08)]">
       <Table>
@@ -318,7 +318,7 @@ function MembersTable({ members, currentUser, updateRoleMutation, onRemoveClick 
                         defaultValue={member.role}
                         onValueChange={(val) =>
                           updateRoleMutation.mutate(
-                            { orgSlug: member.orgSlug, userId: member.user.id, role: val },
+                            { orgSlug, userId: member.user.id, role: val },
                             {
                               onSuccess: () => toast.success("Role updated"),
                               onError:   (e) => toast.error(e.response?.data?.message || "Failed"),
@@ -532,6 +532,7 @@ export default function OrgMembersPage() {
       {/* ── Table ── */}
       <MembersTable
         members={filteredMembers}
+        orgSlug={orgSlug}
         currentUser={currentUser}
         updateRoleMutation={updateRoleMutation}
         onRemoveClick={setMemberToRemove}

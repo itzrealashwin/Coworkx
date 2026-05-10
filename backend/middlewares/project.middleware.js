@@ -33,15 +33,17 @@ const requireProjectAccess = async (req, res, next) => {
       );
     }
 
-    const project = await prisma.project.findFirst({
-      where: {
-        orgId: org.id,
-        slug: projectSlug,
-        deletedAt: null,
-      },
-    });
+    const project = projectSlug
+      ? await prisma.project.findFirst({
+        where: {
+          orgId: org.id,
+          slug: projectSlug,
+          deletedAt: null,
+        },
+      })
+      : null;
 
-    if (!project) {
+    if (projectSlug && !project) {
       throw new AppError("Project not found.", 404, "PROJECT_NOT_FOUND");
     }
 

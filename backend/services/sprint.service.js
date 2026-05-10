@@ -88,6 +88,13 @@ const listSprints = async ({ projectId, status }) => {
           avatarUrl: true,
         },
       },
+      issues: {
+        where: { deletedAt: null },
+        select: {
+          id: true,
+          number: true,
+        }
+      },
       _count: {
         select: {
           issues: {
@@ -265,9 +272,9 @@ const completeSprint = async ({ sprintId, projectId, moveUnfinishedTo }) => {
 const deleteSprint = async ({ sprintId, projectId }) => {
   const sprint = await findSprintOrThrow(sprintId, projectId);
 
-  if (sprint.status !== 'planned') {
+  if (sprint.status === 'active') {
     throw new AppError(
-      'Only planned sprints can be deleted. Complete or reassign the active sprint first.',
+      'Active sprints cannot be deleted. Complete or reassign the active sprint first.',
       400,
       'INVALID_SPRINT_STATE'
     );

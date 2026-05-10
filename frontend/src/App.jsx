@@ -13,21 +13,28 @@ import SettingsPage from "./pages/Settings.jsx";
 import BacklogPage from "./pages/projects/Backlog.jsx";
 
 // Lazy Loaded Pages
-const LoginPage = React.lazy(() => import("./pages/Login"));
-const RegisterPage = React.lazy(() => import("./pages/Register"));
-const CreateOrgPage = React.lazy(() => import("./pages/orgs/CreateOrgPage"));
-const OrgDashboardPage = React.lazy(
-  () => import("./pages/orgs/OrgDashboardPage"),
+const LoginPage = React.lazy(() => import("./pages/Login.jsx"));
+const RegisterPage = React.lazy(() => import("./pages/Register.jsx"));
+const CreateOrgPage = React.lazy(
+  () => import("./pages/orgs/CreateOrgPage.jsx"),
 );
-const OrgMembersPage = React.lazy(() => import("./pages/orgs/OrgMembersPage"));
+const OrgDashboardPage = React.lazy(
+  () => import("./pages/orgs/OrgDashboardPage.jsx"),
+);
+const OrgMembersPage = React.lazy(
+  () => import("./pages/orgs/OrgMembersPage.jsx"),
+);
 const AcceptInvitePage = React.lazy(
-  () => import("./pages/orgs/AcceptInvitePage"),
+  () => import("./pages/orgs/AcceptInvitePage.jsx"),
 );
 const ProjectBoardPage = React.lazy(
-  () => import("./pages/projects/ProjectBoardPage"),
+  () => import("./pages/projects/ProjectBoardPage.jsx"),
 );
 const IssueInboxPage = React.lazy(
-  () => import("./pages/projects/IssueInboxPage"),
+  () => import("./pages/projects/IssueInboxPage.jsx"),
+);
+const SprintBoardPage = React.lazy(
+  () => import("./pages/projects/SprintBoardPage.jsx"),
 );
 const CoWorkxLanding = React.lazy(() => import("./pages/Landing.jsx"));
 
@@ -106,8 +113,8 @@ function App() {
 
               <Route path="overview" element={<ProjectBoardPage />} />
               <Route path="inbox" element={<IssueInboxPage />} />
-              <Route path="backlog" element={<BacklogPage/>} />
-              <Route path="sprint" element={<div>Sprint Board</div>} />
+              <Route path="backlog" element={<BacklogPage />} />
+              <Route path="sprint" element={<SprintBoardPage />} />
               <Route path="workload" element={<div>Workload Page</div>} />
               <Route path="analytics" element={<div>Analytics Page</div>} />
               <Route path="activity" element={<div>Activity Page</div>} />

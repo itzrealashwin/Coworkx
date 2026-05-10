@@ -167,7 +167,7 @@ const _assertCanModerateProjectContent = async ({ projectId, userId, orgRole }) 
   }
 };
 
-const _findIssueByNumberOrThrow = async ({ projectId, projectKey, issueNumberParam, includeDeleted = false, tx = prisma }) => {
+const _findIssueByNumberOrThrow = async ({ projectId, projectKey, issueNumberParam, includeDeleted = false, extraIncludes = {}, tx = prisma }) => {
   const number = _parseIssueNumber(issueNumberParam, projectKey);
 
   const issue = await tx.issue.findFirst({
@@ -176,7 +176,10 @@ const _findIssueByNumberOrThrow = async ({ projectId, projectKey, issueNumberPar
       number,
       ...(includeDeleted ? {} : { deletedAt: null }),
     },
-    include: issueInclude,
+    include: {
+      ...issueInclude,
+      ...extraIncludes,
+    },
   });
 
   if (!issue) {
@@ -452,17 +455,31 @@ const createIssue = async ({ project, orgMember, userId, body }) => {
   return _buildIssueResponse(createdIssue, project.key);
 };
 
-const listIssues = async ({ project, orgMember, userId, query }) => {
-  await _assertProjectMemberAccess({
-    projectId: project.id,
-    userId,
-    orgRole: orgMember.role,
-  });
-
+const listIssues = async ({ project, org, orgMember, userId, query }) => {
   const where = {
-    projectId: project.id,
     deletedAt: null,
   };
+
+  if (project) {
+    await _assertProjectMemberAccess({
+      projectId: project.id,
+      userId,
+      orgRole: orgMember.role,
+    });
+    where.projectId = project.id;
+  } else if (org) {
+    // If no project specified, list all issues in the organization the user has access to
+    // For now, we allow owners/admins to see all, others see what they are members of
+    if (!['owner', 'admin'].includes(orgMember.role)) {
+      const userProjectIds = await prisma.projectMember.findMany({
+        where: { userId, removedAt: null, project: { orgId: org.id } },
+        select: { projectId: true }
+      });
+      where.projectId = { in: userProjectIds.map(p => p.projectId) };
+    } else {
+      where.project = { orgId: org.id };
+    }
+  }
 
   const sprint = query.sprint?.toString().trim();
   const status = query.status?.toString().trim();
@@ -501,11 +518,21 @@ const listIssues = async ({ project, orgMember, userId, query }) => {
 
   const issues = await prisma.issue.findMany({
     where,
-    include: issueInclude,
+    include: {
+      ...issueInclude,
+      project: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          key: true,
+        },
+      },
+    },
     orderBy: [{ updatedAt: 'desc' }, { number: 'desc' }],
   });
 
-  return issues.map((issue) => _buildIssueResponse(issue, project.key));
+  return issues.map((issue) => _buildIssueResponse(issue, issue.project?.key || project?.key));
 };
 
 const listBacklogIssues = async ({ project, orgMember, userId }) => {
@@ -959,6 +986,21 @@ const getIssueByNumber = async ({ project, orgMember, userId, issueNumber }) => 
     projectId: project.id,
     projectKey: project.key,
     issueNumberParam: issueNumber,
+    extraIncludes: {
+      comments: {
+        where: { deletedAt: null },
+        include: {
+          user: {
+            select: {
+              id: true,
+              displayName: true,
+              avatarUrl: true,
+            }
+          },
+        },
+        orderBy: { createdAt: 'asc' },
+      }
+    }
   });
 
   return _buildIssueResponse(issue, project.key);
