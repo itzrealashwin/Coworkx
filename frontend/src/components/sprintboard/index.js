@@ -5,3 +5,4 @@ export { default as StatusColumn } from './StatusColumn';
 export { default as PriorityIcon } from './PriorityIcon';
 export { default as BoardEmptyState } from './BoardEmptyState';
 export { default as SprintCompleteDialog } from './SprintCompleteDialog';
+export { default as CreateIssueModal } from './CreateIssueModal';

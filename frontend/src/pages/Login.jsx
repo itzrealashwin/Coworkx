@@ -76,7 +76,9 @@ export default function Login() {
       navigate(from, { replace: true });
     } catch (error) {
       if (error?.response?.data?.code === "EMAIL_NOT_VERIFIED") {
-        navigate("/verify-otp", { state: { email: formData.email } });
+        navigate("/verify-otp", {
+          state: { email: formData.email, from: location.state?.from },
+        });
       }
     }
   };

@@ -17,20 +17,11 @@ const transporter = nodemailer.createTransport({
  * @param {'verify' | 'reset'} type - purpose of the OTP
  */
 const sendOTPEmail = async (to, otp, type) => {
-  const subject =
-    type === 'verify'
-      ? 'Verify Your Email Address'
-      : 'Password Reset Request';
+  const subject ='Verify Your Email Address'
 
-  const heading =
-    type === 'verify'
-      ? 'Email Verification'
-      : 'Password Reset';
+  const heading ='Email Verification'
 
-  const description =
-    type === 'verify'
-      ? 'Thank you for registering! Please use the following code to verify your email address.'
-      : 'We received a request to reset your password. Use the code below to proceed.';
+  const description ='Thank you for registering! Please use the following code to verify your email address.'
 
   const html = `
     <!DOCTYPE html>

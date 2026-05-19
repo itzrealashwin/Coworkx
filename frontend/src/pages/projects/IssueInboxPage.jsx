@@ -875,7 +875,7 @@ export default function IssueInboxPage() {
                         }
                       >
                         <SelectTrigger className="h-6 text-[11px] border-0 bg-transparent p-0 shadow-none focus:ring-0 gap-1 w-auto font-medium text-foreground hover:text-primary [&>svg]:hidden text-right justify-end max-w-[80px] truncate">
-                          <span>{selectedIssue?.sprint?.name || 'Backlog'}</span>
+                          {/* <span>{selectedIssue?.sprint?.name || 'Backlog'}</span> */}
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent align="end">

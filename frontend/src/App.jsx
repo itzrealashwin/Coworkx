@@ -15,6 +15,7 @@ import BacklogPage from "./pages/projects/Backlog.jsx";
 // Lazy Loaded Pages
 const LoginPage = React.lazy(() => import("./pages/Login.jsx"));
 const RegisterPage = React.lazy(() => import("./pages/Register.jsx"));
+const VerifyOtpPage = React.lazy(() => import("./pages/VerifyOtp.jsx"));
 const CreateOrgPage = React.lazy(
   () => import("./pages/orgs/CreateOrgPage.jsx"),
 );
@@ -53,7 +54,6 @@ const AppLayout = () => (
 );
 
 // Auth Pages Placeholders
-const VerifyOtpPage = () => <div>VerifyOtpPage</div>;
 const ForgotPasswordPage = () => <div>ForgotPasswordPage</div>;
 const ResetPasswordPage = () => <div>ResetPasswordPage</div>;
 

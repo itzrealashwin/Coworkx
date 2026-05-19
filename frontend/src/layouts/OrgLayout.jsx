@@ -34,10 +34,10 @@ export default function OrgLayout() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F4F5F7]">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* We can pass org data to sidebar later if needed. For now, we render it as is */}
       <WorkspaceSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden bg-muted/20">
         <Outlet context={{ orgData }} />
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { DragDropContext } from '@hello-pangea/dnd';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle, Clock3, LayoutDashboard, Rocket, Search } from 'lucide-react';
+import { CheckCircle, Clock3, LayoutDashboard, Rocket, Search, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,6 +20,7 @@ import PriorityIcon from './PriorityIcon';
 import StatusColumn from './StatusColumn';
 import BoardEmptyState from './BoardEmptyState';
 import SprintCompleteDialog from './SprintCompleteDialog';
+import CreateIssueModal from './CreateIssueModal';
 
 import {
 	CATEGORY_ORDER,
@@ -49,6 +50,7 @@ const SprintBoard = ({ orgSlug, projectSlug, project, navigate }) => {
 	const [search, setSearch] = useState('');
 	const [groupBy, setGroupBy] = useState('none');
 	const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
+	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 	const [moveUnfinishedTo, setMoveUnfinishedTo] = useState('backlog');
 
 	const { data: sprintsData, isLoading: isSprintsLoading, isError: isSprintsError } = useSprints(
@@ -383,6 +385,14 @@ const SprintBoard = ({ orgSlug, projectSlug, project, navigate }) => {
 					<Button size="sm" className="h-8" onClick={() => setIsCompleteDialogOpen(true)} disabled={!hasActiveSprint || completeSprint.isPending}>
 						Complete Sprint
 					</Button>
+					<Button 
+					size="sm" className="h-8"
+						onClick={() => setIsCreateModalOpen(true)}
+						
+					>
+						<Plus className="size-4 mr-1.5" />
+						Create Issue
+					</Button>
 				</div>
 			</div>
 
@@ -502,6 +512,13 @@ const SprintBoard = ({ orgSlug, projectSlug, project, navigate }) => {
 				onMoveUnfinishedToChange={setMoveUnfinishedTo}
 				onComplete={handleCompleteSprint}
 				isPending={completeSprint.isPending}
+			/>
+
+			<CreateIssueModal
+				open={isCreateModalOpen}
+				onOpenChange={setIsCreateModalOpen}
+				orgSlug={orgSlug}
+				initialProjectSlug={projectSlug}
 			/>
 		</div>
 	);

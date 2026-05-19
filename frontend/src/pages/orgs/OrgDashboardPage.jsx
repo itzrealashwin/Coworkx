@@ -37,9 +37,9 @@ function getGreeting() {
 }
 
 function priorityBadgeClass(priority) {
-  if (priority === "HIGH") return "bg-[#FFEBE6] text-[#FF5630]";
-  if (priority === "MEDIUM") return "bg-[#FFFAE6] text-[#FFAB00]";
-  return "bg-[#E3FCEF] text-[#36B37E]";
+  if (priority === "HIGH") return "bg-orange-500/10 text-orange-600";
+  if (priority === "MEDIUM") return "bg-blue-500/10 text-blue-600";
+  return "bg-green-500/10 text-green-600";
 }
 
 function normalizeStatus(status) {
@@ -58,10 +58,10 @@ function normalizeStatus(status) {
 
 function statusBadgeClass(status) {
   const normalized = normalizeStatus(status);
-  if (normalized === "TODO") return "bg-[#F4F5F7] text-[#42526E]";
-  if (normalized === "IN_PROGRESS") return "bg-[#DEEBFF] text-[#0052CC]";
-  if (normalized === "DONE") return "bg-[#E3FCEF] text-[#36B37E]";
-  return "bg-[#F4F5F7] text-[#42526E]";
+  if (normalized === "TODO") return "bg-muted text-muted-foreground";
+  if (normalized === "IN_PROGRESS") return "bg-primary/10 text-primary";
+  if (normalized === "DONE") return "bg-green-500/10 text-green-600";
+  return "bg-muted text-muted-foreground";
 }
 
 function statusLabel(status) {
@@ -73,9 +73,9 @@ function statusLabel(status) {
 }
 
 function progressBarColor(progress) {
-  if (progress >= 60) return "#36B37E";
-  if (progress >= 30) return "#FFAB00";
-  return "#FF5630";
+  if (progress >= 60) return "#22c55e"; // green-500
+  if (progress >= 30) return "#f97316"; // orange-500
+  return "#ef4444"; // red-500
 }
 
 const EMPTY_FORM = { name: "", key: "", slug: "", description: "" };
@@ -236,18 +236,18 @@ export default function OrgDashboardPage() {
       {/* ── Page header ── */}
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-[22px] font-extrabold tracking-tight text-[#172B4D]">
+          <h1 className="text-3xl font-bold leading-tight text-foreground">
             {greeting}, {firstName} 👋
           </h1>
-          <p className="text-[14px] font-medium text-[#5E6C84] mt-1">
+          <p className="text-sm font-medium text-muted-foreground mt-2">
             Here's what's happening with {orgData?.name || "your team"} today.
           </p>
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
           <DialogTrigger asChild>
-            <button className="bg-[#0052CC] hover:bg-[#0065FF] text-white font-bold text-[13px] px-4 py-2 rounded-[4px] transition-colors flex items-center gap-2">
-              <Plus size={14} />
+            <button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm px-4 py-2 rounded-md transition-colors flex items-center gap-2 shadow-sm">
+              <Plus size={16} />
               New Project
             </button>
           </DialogTrigger>
@@ -332,13 +332,14 @@ export default function OrgDashboardPage() {
                   type="button"
                   variant="outline"
                   onClick={() => handleDialogChange(false)}
+                  className="rounded-md h-9 px-4"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={isCreatingProject}
-                  className="bg-[#0052CC] hover:bg-[#0065FF] text-white"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-md h-9 shadow-sm"
                 >
                   {isCreatingProject ? "Creating..." : "Create Project"}
                 </Button>
@@ -349,25 +350,25 @@ export default function OrgDashboardPage() {
       </div>
 
       {/* ── Stats row ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
             <div
               key={stat.label}
-              className="bg-white rounded-[6px] border border-[#DFE1E6] shadow-[0_1px_3px_rgba(9,30,66,0.08),0_0_1px_rgba(9,30,66,0.06)] hover:shadow-[0_4px_16px_rgba(9,30,66,0.1)] transition-shadow duration-200 p-5"
+              className="bg-card rounded-2xl border border-border/50 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 p-6"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="text-[32px] font-extrabold text-[#172B4D] leading-none">
+                  <div className="text-3xl font-bold text-foreground leading-none">
                     {stat.value}
                   </div>
-                  <div className="text-[13px] font-medium text-[#5E6C84] mt-2">
+                  <div className="text-sm font-medium text-muted-foreground mt-3">
                     {stat.label}
                   </div>
                 </div>
-                <div className="w-9 h-9 rounded-[6px] bg-[#DEEBFF] flex items-center justify-center flex-shrink-0">
-                  <Icon size={18} className="text-[#0052CC]" />
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Icon size={20} className="text-primary" />
                 </div>
               </div>
             </div>
@@ -376,25 +377,25 @@ export default function OrgDashboardPage() {
       </div>
 
       {/* ── Main grid ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 flex flex-col gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="xl:col-span-2 flex flex-col gap-8">
           {/* Active Projects */}
-          <div className="bg-white rounded-[6px] border border-[#DFE1E6] shadow-[0_1px_3px_rgba(9,30,66,0.08),0_0_1px_rgba(9,30,66,0.06)] hover:shadow-[0_4px_16px_rgba(9,30,66,0.1)] transition-shadow duration-200">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#DFE1E6]">
-              <h2 className="text-[15px] font-extrabold tracking-tight text-[#172B4D]">
+          <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-border/50">
+              <h2 className="text-lg font-semibold text-foreground">
                 Active Projects
               </h2>
               <Link
-                to={`/${orgSlug}/projects`} // ← param
-                className="flex items-center gap-1 text-[13px] text-[#0052CC] font-semibold hover:underline"
+                to={`/${orgSlug}/projects`} 
+                className="flex items-center gap-1.5 text-sm text-primary font-medium hover:underline"
               >
-                View all <ArrowRight size={13} />
+                View all <ArrowRight size={14} />
               </Link>
             </div>
 
-            <div className="divide-y divide-[#DFE1E6]">
+            <div className="divide-y divide-border/50">
               {isProjectsLoading ? (
-                <div className="px-5 py-4 space-y-3">
+                <div className="px-6 py-5 space-y-4">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="animate-pulse space-y-2">
                       <div className="h-4 bg-gray-200 rounded w-1/4" />
@@ -404,9 +405,9 @@ export default function OrgDashboardPage() {
                   ))}
                 </div>
               ) : projectsList.length === 0 ? (
-                <div className="px-5 py-8 text-center text-[#5E6C84]">
-                  <p className="text-[14px] font-medium">No projects yet</p>
-                  <p className="text-[13px] mt-1">Create one to get started</p>
+                <div className="px-6 py-10 text-center text-muted-foreground">
+                  <p className="text-sm font-medium">No projects yet</p>
+                  <p className="text-xs mt-1">Create one to get started</p>
                 </div>
               ) : (
                 projectsList.slice(0, 5).map((project, pi) => {
@@ -435,32 +436,32 @@ export default function OrgDashboardPage() {
 
                   return (
                     <Link
-                      to={`/${orgSlug}/projects/${project.slug}`} // ← param
+                      to={`/${orgSlug}/projects/${project.slug}`}
                       key={project.id}
-                      className="block px-5 py-4 hover:bg-[#FAFBFC] transition-colors border-l-2 border-transparent hover:border-[#0052CC]"
+                      className="block px-6 py-5 hover:bg-muted/30 transition-colors border-l-2 border-transparent hover:border-primary group"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0">
-                          <div className="text-[15px] font-bold text-[#172B4D]">
+                          <div className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
                             {project.name}
                           </div>
-                          <div className="text-[13px] text-[#5E6C84] mt-0.5 truncate max-w-sm">
+                          <div className="text-sm text-muted-foreground mt-1 truncate max-w-md">
                             {project.description || "No description provided"}
                           </div>
                         </div>
                         <span
-                          className={`text-[11px] font-bold px-2 py-0.5 rounded-[3px] whitespace-nowrap shrink-0 ${
+                          className={`text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap shrink-0 ${
                             daysLeft <= 3
-                              ? "bg-[#FFFAE6] text-[#FFAB00]"
-                              : "bg-[#DEEBFF] text-[#0052CC]"
+                              ? "bg-orange-500/10 text-orange-600"
+                              : "bg-primary/10 text-primary"
                           }`}
                         >
                           Sprint · {daysLeft}d left
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2 mt-3">
-                        <div className="flex-1 h-1.5 bg-[#DFE1E6] rounded-full overflow-hidden">
+                      <div className="flex items-center gap-3 mt-4">
+                        <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                           {progress > 0 && (
                             <div
                               className="h-full rounded-full transition-all"
@@ -472,20 +473,20 @@ export default function OrgDashboardPage() {
                           )}
                         </div>
                         {progress > 0 && (
-                          <span className="text-[12px] font-semibold text-[#42526E] w-8 text-right shrink-0">
+                          <span className="text-xs font-medium text-muted-foreground w-8 text-right shrink-0">
                             {progress}%
                           </span>
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center justify-between mt-4">
                         <div className="flex items-center">
                           {members.slice(0, 3).map((initials, i) => (
                             <div
                               key={i}
-                              className="w-6 h-6 rounded-full text-white text-[10px] font-bold flex items-center justify-center border-[1.5px] border-white"
+                              className="w-7 h-7 rounded-full text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-background shadow-sm"
                               style={{
-                                marginLeft: i === 0 ? 0 : "-6px",
+                                marginLeft: i === 0 ? 0 : "-8px",
                                 backgroundColor:
                                   projectColors[
                                     (pi + i) % projectColors.length
@@ -497,14 +498,14 @@ export default function OrgDashboardPage() {
                           ))}
                           {members.length > 3 && (
                             <div
-                              className="w-6 h-6 rounded-full bg-[#DFE1E6] text-[#172B4D] text-[10px] font-bold flex items-center justify-center border-[1.5px] border-white"
-                              style={{ marginLeft: "-6px" }}
+                              className="w-7 h-7 rounded-full bg-muted text-muted-foreground text-[10px] font-bold flex items-center justify-center ring-2 ring-background shadow-sm"
+                              style={{ marginLeft: "-8px" }}
                             >
                               +{members.length - 3}
                             </div>
                           )}
                         </div>
-                        <span className="text-[12px] font-medium text-[#5E6C84]">
+                        <span className="text-xs font-medium text-muted-foreground">
                           {issueStats.open} open tasks
                         </span>
                       </div>
@@ -516,44 +517,44 @@ export default function OrgDashboardPage() {
           </div>
 
           {/* My Tasks */}
-          <div className="bg-white rounded-[6px] border border-[#DFE1E6] shadow-[0_1px_3px_rgba(9,30,66,0.08),0_0_1px_rgba(9,30,66,0.06)] hover:shadow-[0_4px_16px_rgba(9,30,66,0.1)] transition-shadow duration-200">
-            <div className="flex items-center gap-2 px-5 py-4 border-b border-[#DFE1E6]">
-              <h2 className="text-[15px] font-extrabold tracking-tight text-[#172B4D]">
+          <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden mt-6">
+            <div className="flex items-center gap-3 px-6 py-5 border-b border-border/50">
+              <h2 className="text-lg font-semibold text-foreground">
                 My Tasks
               </h2>
-              <span className="w-5 h-5 rounded-full bg-[#DEEBFF] text-[#0052CC] text-[11px] font-bold flex items-center justify-center">
+              <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
                 {myTasks.length}
               </span>
             </div>
-            <div className="divide-y divide-[#DFE1E6]">
+            <div className="divide-y divide-border/50">
               {myTasks.map((task) => (
                 <div
                   key={task.id}
                   onClick={() => toast.info(`Task clicked: ${task.title}`)}
-                  className="flex items-center gap-4 px-5 py-3 hover:bg-[#FAFBFC] transition-colors cursor-pointer"
+                  className="flex items-center gap-4 px-6 py-4 hover:bg-muted/30 transition-colors cursor-pointer"
                 >
                   <span
-                    className={`text-[11px] font-bold px-2 py-0.5 rounded-[3px] shrink-0 ${priorityBadgeClass(task.priority)}`}
+                    className={`text-[10px] font-semibold tracking-wide uppercase px-2.5 py-1 rounded-full shrink-0 ${priorityBadgeClass(task.priority)}`}
                   >
                     {task.priority}
                   </span>
                   <div className="flex-1 min-w-0">
                     <div
-                      className={`text-[14px] font-medium truncate ${task.status === "DONE" ? "line-through text-[#8993A4]" : "text-[#172B4D]"}`}
+                      className={`text-sm font-medium truncate ${task.status === "DONE" ? "line-through text-muted-foreground" : "text-foreground"}`}
                     >
                       {task.title}
                     </div>
-                    <div className="text-[12px] text-[#8993A4]">
+                    <div className="text-xs text-muted-foreground mt-0.5">
                       {task.project}
                     </div>
                   </div>
                   <span
-                    className={`text-[11px] font-bold px-2 py-0.5 rounded-[3px] shrink-0 ${statusBadgeClass(task.status)}`}
+                    className={`text-[10px] font-semibold tracking-wide uppercase px-2.5 py-1 rounded-full shrink-0 ${statusBadgeClass(task.status)}`}
                   >
                     {statusLabel(task.status)}
                   </span>
                   <span
-                    className={`text-[12px] shrink-0 ${task.isOverdue ? "text-[#FF5630] font-bold" : "text-[#5E6C84] font-medium"}`}
+                    className={`text-xs w-20 text-right shrink-0 ${task.isOverdue ? "text-destructive font-semibold" : "text-muted-foreground"}`}
                   >
                     {task.dueLabel}
                   </span>
@@ -565,25 +566,20 @@ export default function OrgDashboardPage() {
 
         {/* Team Activity */}
         <div className="xl:col-span-1">
-          <div className="bg-white rounded-[6px] border border-[#DFE1E6] shadow-[0_1px_3px_rgba(9,30,66,0.08),0_0_1px_rgba(9,30,66,0.06)] hover:shadow-[0_4px_16px_rgba(9,30,66,0.1)] transition-shadow duration-200">
-            <div className="px-5 py-4 border-b border-[#DFE1E6]">
-              <h2 className="text-[15px] font-extrabold tracking-tight text-[#172B4D]">
+          <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden h-full">
+            <div className="px-6 py-5 border-b border-border/50">
+              <h2 className="text-lg font-semibold text-foreground">
                 Team Activity
               </h2>
             </div>
-            <div className="px-5 py-4">
-              <div className="flex gap-3">
-                <div className="flex flex-col items-center">
-                  <div className="w-7 h-7 rounded-full bg-[#DEEBFF] text-[#0052CC] text-[11px] font-bold flex items-center justify-center shrink-0">
-                    AI
-                  </div>
-                </div>
-                <div className="pb-5 pt-0.5 min-w-0">
-                  <p className="text-[13px] leading-snug text-[#5E6C84]">
-                    Stay tuned for real-time updates from your team.
-                  </p>
-                </div>
+            <div className="px-6 py-8 h-[calc(100%-70px)] flex flex-col items-center justify-center bg-muted/20 text-center">
+              <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4 shadow-sm border border-primary/20">
+                <span className="text-base font-bold">AI</span>
               </div>
+              <h3 className="text-sm font-semibold text-foreground mb-1">Coming Soon</h3>
+              <p className="text-xs leading-relaxed text-muted-foreground max-w-[200px] mx-auto">
+                Stay tuned for real-time AI-powered activity updates from your team.
+              </p>
             </div>
           </div>
         </div>

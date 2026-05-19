@@ -69,7 +69,7 @@ function getInitials(name = "") {
 // ─── SectionLabel ─────────────────────────────────────────────────────────────
 function SectionLabel({ children }) {
   return (
-    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#8993A4] px-3 pt-3 pb-1.5 select-none">
+    <p className="text-xs font-semibold px-3 pt-4 pb-2 text-muted-foreground select-none">
       {children}
     </p>
   )
@@ -78,17 +78,13 @@ function SectionLabel({ children }) {
 // ─── NavItem ──────────────────────────────────────────────────────────────────
 function NavItem({ to, icon: Icon, label, isActive, isCollapsed }) {
   const base =
-    "flex items-center gap-2.5 px-3 py-[7px] rounded-[5px] text-[13px] font-semibold transition-all duration-150 w-full relative group"
-  const active   = "bg-[#DEEBFF] text-[#0052CC]"
-  const inactive = "text-[#42526E] hover:bg-[#091E420F] hover:text-[#172B4D]"
+    "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 w-full relative group"
+  const active   = "bg-accent text-accent-foreground shadow-sm"
+  const inactive = "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
 
   const inner = (
     <Link to={to} className={`${base} ${isActive ? active : inactive}`}>
-      {/* Active left accent */}
-      {isActive && (
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-[#0052CC]" />
-      )}
-      <Icon size={15} className="flex-shrink-0 ml-0.5" />
+      <Icon size={16} className={`flex-shrink-0 ${isActive ? "text-foreground" : "text-muted-foreground"}`} />
       {!isCollapsed && <span>{label}</span>}
     </Link>
   )
@@ -105,21 +101,18 @@ function NavItem({ to, icon: Icon, label, isActive, isCollapsed }) {
 // ─── ProjectItem ──────────────────────────────────────────────────────────────
 function ProjectItem({ project, index, orgSlug, isActive, isCollapsed }) {
   const color = PROJECT_COLORS[index % PROJECT_COLORS.length]
-  const base  = "flex items-center gap-2.5 px-3 py-[7px] rounded-[5px] text-[13px] font-semibold transition-all duration-150 w-full relative group"
-  const active   = "bg-[#DEEBFF] text-[#0052CC]"
-  const inactive = "text-[#42526E] hover:bg-[#091E420F] hover:text-[#172B4D]"
+  const base  = "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 w-full relative group"
+  const active   = "bg-accent text-accent-foreground shadow-sm"
+  const inactive = "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
 
   const inner = (
     <Link
       to={`/${orgSlug}/projects/${project.slug}`}
       className={`${base} ${isActive ? active : inactive}`}
     >
-      {isActive && (
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-[#0052CC]" />
-      )}
       {/* Color dot */}
       <span
-        className="w-[7px] h-[7px] rounded-full flex-shrink-0 ml-0.5"
+        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
         style={{ backgroundColor: color }}
       />
       {!isCollapsed && (
@@ -127,9 +120,8 @@ function ProjectItem({ project, index, orgSlug, isActive, isCollapsed }) {
           <span className="flex-1 truncate">{project.name}</span>
           {(project.members?.length > 0) && (
             <Badge
-              className={`text-[10px] font-bold border-0 px-1.5 py-0 h-4 min-w-[18px] rounded-full ${
-                isActive ? "bg-[#0052CC] text-white" : "bg-[#DFE1E6] text-[#5E6C84]"
-              }`}
+              variant="secondary"
+              className={`text-[10px] px-1.5 py-0 h-4 min-w-[18px] bg-muted text-muted-foreground ${isActive && "bg-background shadow-sm"}`}
             >
               {project.members.length}
             </Badge>
@@ -155,47 +147,47 @@ function OrgSwitcher({ currentOrg, organizations, orgSlug, isCollapsed }) {
   const trigger = isCollapsed ? (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button className="w-8 h-8 rounded-[6px] bg-[#0052CC] flex items-center justify-center mx-auto shadow-sm hover:bg-[#0065FF] transition-colors">
-          <span className="text-white text-[12px] font-extrabold">
+        <button className="w-8 h-8 rounded-md bg-primary flex items-center justify-center mx-auto shadow-sm hover:bg-primary/90 transition-colors">
+          <span className="text-primary-foreground text-xs font-bold">
             {currentOrg?.name?.charAt(0)?.toUpperCase() || "W"}
           </span>
         </button>
       </TooltipTrigger>
-      <TooltipContent side="right" className="text-[12px] font-semibold">
+      <TooltipContent side="right" className="text-xs font-medium">
         {currentOrg?.name || "Workspace"}
       </TooltipContent>
     </Tooltip>
   ) : (
-    <button className="flex items-center gap-2.5 w-full hover:bg-[#091E420F] rounded-[5px] p-1.5 -mx-1.5 transition-colors group">
-      <div className="w-8 h-8 rounded-[6px] bg-[#0052CC] flex items-center justify-center flex-shrink-0 shadow-sm">
-        <span className="text-white text-[12px] font-extrabold">
+    <button className="flex items-center gap-3 w-full hover:bg-muted/50 rounded-lg p-2 transition-colors group border border-transparent hover:border-border/50">
+      <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center flex-shrink-0 shadow-sm">
+        <span className="text-primary-foreground text-xs font-bold">
           {currentOrg?.name?.charAt(0)?.toUpperCase() || "W"}
         </span>
       </div>
       <div className="flex-1 text-left min-w-0">
-        <p className="text-[13px] font-bold text-[#172B4D] truncate leading-tight">
+        <p className="text-sm font-semibold text-foreground truncate leading-tight">
           {currentOrg?.name || "Workspace"}
         </p>
-        <p className="text-[10px] text-[#5E6C84] leading-tight mt-0.5 font-medium">
+        <p className="text-xs text-muted-foreground leading-tight mt-0.5 font-medium">
           {currentOrg?.plan || "Free plan"}
         </p>
       </div>
-      <ChevronDown size={13} className="text-[#8993A4] flex-shrink-0 group-hover:text-[#5E6C84] transition-colors" />
+      <ChevronDown size={14} className="text-muted-foreground flex-shrink-0 group-hover:text-foreground transition-colors" />
     </button>
   )
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div>{trigger}</div>
+        <div className="outline-none">{trigger}</div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         side="bottom"
         align="start"
         sideOffset={6}
-        className="w-[220px] shadow-[0_8px_24px_rgba(9,30,66,0.16)]"
+        className="w-[240px] rounded-xl shadow-md border-border/40"
       >
-        <DropdownMenuLabel className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#8993A4] px-2 py-1.5">
+        <DropdownMenuLabel className="text-xs font-semibold px-3 py-2 text-muted-foreground">
           Your organizations
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -203,29 +195,29 @@ function OrgSwitcher({ currentOrg, organizations, orgSlug, isCollapsed }) {
           <DropdownMenuItem
             key={org.id}
             onClick={() => navigate(`/${org.slug}`)}
-            className={`text-[13px] font-medium cursor-pointer flex items-center justify-between gap-2 ${
-              org.slug === orgSlug ? "text-[#0052CC] font-semibold bg-[#DEEBFF] focus:bg-[#DEEBFF]" : ""
+            className={`text-sm cursor-pointer flex items-center justify-between gap-2 rounded-md ${
+              org.slug === orgSlug ? "text-foreground font-medium bg-accent" : "text-muted-foreground"
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-5 h-5 rounded-[3px] bg-[#0052CC] flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-[9px] font-extrabold">
+              <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20">
+                <span className="text-primary text-[10px] font-bold">
                   {org.name?.charAt(0)?.toUpperCase()}
                 </span>
               </div>
               <span className="truncate">{org.name}</span>
             </div>
-            {org.slug === orgSlug && <CheckCircle2 size={13} className="text-[#0052CC] flex-shrink-0" />}
+            {org.slug === orgSlug && <CheckCircle2 size={14} className="text-primary flex-shrink-0" />}
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link
             to="/orgs/new"
-            className="text-[13px] font-semibold text-[#42526E] flex items-center gap-2 cursor-pointer"
+            className="text-sm font-medium text-foreground flex items-center gap-2 cursor-pointer rounded-md mx-1 py-2"
           >
-            <div className="w-5 h-5 rounded-[3px] border border-dashed border-[#B3BAC5] flex items-center justify-center">
-              <Plus size={10} className="text-[#5E6C84]" />
+            <div className="w-6 h-6 rounded-md border border-dashed border-muted-foreground/30 flex items-center justify-center">
+              <Plus size={12} className="text-muted-foreground" />
             </div>
             Create organization
           </Link>
@@ -240,9 +232,9 @@ function UserMenu({ user, orgSlug, isCollapsed, logout }) {
   const initials = getInitials(user?.displayName)
 
   const avatarNode = (
-    <Avatar className="w-7 h-7 flex-shrink-0 border border-[#DFE1E6]">
+    <Avatar className="w-8 h-8 flex-shrink-0 border border-border shadow-sm">
       {user?.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user?.displayName} />}
-      <AvatarFallback className="bg-[#0052CC] text-white text-[11px] font-extrabold">
+      <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
         {initials}
       </AvatarFallback>
     </Avatar>
@@ -251,63 +243,63 @@ function UserMenu({ user, orgSlug, isCollapsed, logout }) {
   const trigger = isCollapsed ? (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button className="flex items-center justify-center w-full py-1 hover:bg-[#091E420F] rounded-[5px] transition-colors">
+        <button className="flex items-center justify-center w-full py-2 hover:bg-muted/50 rounded-lg transition-colors">
           {avatarNode}
         </button>
       </TooltipTrigger>
-      <TooltipContent side="right" className="text-[12px] font-semibold">
+      <TooltipContent side="right" className="text-xs font-medium">
         {user?.displayName || "Account"}
       </TooltipContent>
     </Tooltip>
   ) : (
-    <button className="flex items-center gap-2.5 w-full hover:bg-[#091E420F] rounded-[5px] p-1.5 -mx-1.5 transition-colors group">
+    <button className="flex items-center gap-3 w-full hover:bg-muted/50 rounded-lg p-2 -mx-2 transition-colors group">
       {avatarNode}
       <div className="flex-1 text-left min-w-0">
-        <p className="text-[13px] font-bold text-[#172B4D] truncate leading-tight">
+        <p className="text-sm font-semibold text-foreground truncate leading-tight">
           {user?.displayName || "User"}
         </p>
-        <p className="text-[10px] text-[#5E6C84] leading-tight mt-0.5 truncate">
+        <p className="text-xs text-muted-foreground leading-tight mt-0.5 truncate">
           {user?.email}
         </p>
       </div>
-      <MoreHorizontal size={14} className="text-[#8993A4] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+      <MoreHorizontal size={14} className="text-muted-foreground flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
     </button>
   )
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div>{trigger}</div>
+        <div className="outline-none">{trigger}</div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         side="top"
         align="start"
         sideOffset={8}
-        className="w-[200px] shadow-[0_8px_24px_rgba(9,30,66,0.16)]"
+        className="w-[220px] rounded-xl shadow-md border-border/40"
       >
-        <div className="px-2 py-2 border-b border-[#F4F5F7]">
-          <p className="text-[13px] font-bold text-[#172B4D] truncate">{user?.displayName}</p>
-          <p className="text-[11px] text-[#5E6C84] truncate mt-0.5">{user?.email}</p>
+        <div className="px-3 py-2 border-b border-border/40">
+          <p className="text-sm font-semibold text-foreground truncate">{user?.displayName}</p>
+          <p className="text-xs text-muted-foreground truncate mt-0.5">{user?.email}</p>
         </div>
-        <div className="py-1">
-          <DropdownMenuItem className="text-[13px] font-medium text-[#172B4D] cursor-pointer flex items-center gap-2">
-            <UserCircle size={13} className="text-[#5E6C84]" /> View profile
+        <div className="py-1.5">
+          <DropdownMenuItem className="text-sm font-medium text-foreground cursor-pointer flex items-center gap-2 rounded-md mx-1">
+            <UserCircle size={14} className="text-muted-foreground" /> View profile
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className="rounded-md mx-1">
             <Link
               to={`/${orgSlug}/settings`}
-              className="text-[13px] font-medium text-[#172B4D] cursor-pointer flex items-center gap-2"
+              className="text-sm font-medium text-foreground cursor-pointer flex items-center gap-2"
             >
-              <Settings size={13} className="text-[#5E6C84]" /> Settings
+              <Settings size={14} className="text-muted-foreground" /> Settings
             </Link>
           </DropdownMenuItem>
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => logout()}
-          className="text-[13px] font-semibold text-[#DE350B] focus:text-[#DE350B] focus:bg-[#FFEBE6] cursor-pointer flex items-center gap-2"
+          className="text-sm font-medium text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex items-center gap-2 rounded-md mx-1 mb-1"
         >
-          <LogOut size={13} /> Log out
+          <LogOut size={14} /> Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -336,12 +328,12 @@ function ProjectsSection({ projectsList, orgSlug, projectSlug, isCollapsed }) {
           <TooltipTrigger asChild>
             <button
               onClick={() => navigate(`/${orgSlug}/projects`)}
-              className="flex items-center justify-center w-full py-[7px] rounded-[5px] text-[#42526E] hover:bg-[#091E420F] hover:text-[#172B4D] transition-colors"
+              className="flex items-center justify-center w-full py-2 rounded-md text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
             >
-              <Plus size={14} />
+              <Plus size={16} />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="right" className="text-[12px] font-semibold">New project</TooltipContent>
+          <TooltipContent side="right" className="text-xs font-semibold">New project</TooltipContent>
         </Tooltip>
       </div>
     )
@@ -349,15 +341,15 @@ function ProjectsSection({ projectsList, orgSlug, projectSlug, isCollapsed }) {
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <div className="flex items-center justify-between pr-1">
+      <div className="flex items-center justify-between pr-3">
         <CollapsibleTrigger asChild>
-          <button className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#8993A4] hover:text-[#42526E] px-3 pt-3 pb-1.5 transition-colors">
+          <button className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground px-3 pt-4 pb-2 transition-colors select-none outline-none">
             {open
-              ? <ChevronDown size={11} strokeWidth={2.5} />
-              : <ChevronRight size={11} strokeWidth={2.5} />
+              ? <ChevronDown size={14} className="text-muted-foreground" />
+              : <ChevronRight size={14} className="text-muted-foreground" />
             }
             Projects
-            <span className="ml-1 text-[9px] font-bold bg-[#DFE1E6] text-[#5E6C84] px-1.5 py-0.5 rounded-full">
+            <span className="ml-1 text-[10px] font-bold bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full relative -top-px">
               {projectsList.length}
             </span>
           </button>
@@ -366,20 +358,20 @@ function ProjectsSection({ projectsList, orgSlug, projectSlug, isCollapsed }) {
           <TooltipTrigger asChild>
             <button
               onClick={() => navigate(`/${orgSlug}/projects`)}
-              className="w-5 h-5 rounded-[3px] flex items-center justify-center text-[#8993A4] hover:bg-[#DFE1E6] hover:text-[#172B4D] transition-colors mt-1.5"
+              className="w-6 h-6 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground outline-none transition-colors mt-2"
             >
-              <Plus size={12} />
+              <Plus size={14} />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="right" className="text-[12px] font-semibold">New project</TooltipContent>
+          <TooltipContent side="right" className="text-xs font-medium">New project</TooltipContent>
         </Tooltip>
       </div>
 
-      <CollapsibleContent className="space-y-0.5 overflow-hidden data-[state=closed]:animate-none">
+      <CollapsibleContent className="space-y-0.5 overflow-hidden data-[state=closed]:animate-none mx-2">
         {projectsList.length === 0 ? (
-          <div className="px-3 py-3 mx-1 rounded-[5px] border border-dashed border-[#DFE1E6] text-center">
-            <FolderKanban size={16} className="text-[#B3BAC5] mx-auto mb-1" />
-            <p className="text-[11px] text-[#8993A4] font-medium">No projects yet</p>
+          <div className="px-3 py-4 mx-2 rounded-md border border-dashed border-border text-center">
+            <FolderKanban size={18} className="text-muted-foreground/50 mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground font-medium">No projects yet</p>
           </div>
         ) : (
           projectsList.map((project, i) => (
@@ -422,8 +414,8 @@ export default function WorkspaceSidebar() {
     <TooltipProvider delayDuration={0}>
       <div
         className={`${
-          isCollapsed ? "w-[52px]" : "w-[240px]"
-        } transition-[width] duration-200 ease-in-out h-screen flex flex-col bg-[#FAFBFC] border-r border-[#DFE1E6] relative flex-shrink-0`}
+          isCollapsed ? "w-[72px]" : "w-[260px]"
+        } transition-[width] duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] h-screen flex flex-col bg-background border-r border-border relative flex-shrink-0 shadow-[1px_0_12px_rgba(0,0,0,0.02)]`}
       >
 
         {/* ── Collapse toggle ── */}
@@ -431,21 +423,21 @@ export default function WorkspaceSidebar() {
           <TooltipTrigger asChild>
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="absolute top-[18px] right-[-11px] z-20 w-[22px] h-[22px] rounded-full bg-white border border-[#DFE1E6] shadow-[0_1px_4px_rgba(9,30,66,0.12)] hover:bg-[#F4F5F7] hover:border-[#B3BAC5] text-[#5E6C84] hover:text-[#172B4D] flex items-center justify-center transition-all"
+              className="absolute top-[22px] right-[-13px] z-20 w-[26px] h-[26px] rounded-full bg-background border border-border shadow-sm hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-all focus:outline-none"
             >
               {isCollapsed
-                ? <PanelLeftOpen  size={11} strokeWidth={2.5} />
-                : <PanelLeftClose size={11} strokeWidth={2.5} />
+                ? <PanelLeftOpen  size={14} />
+                : <PanelLeftClose size={14} />
               }
             </button>
           </TooltipTrigger>
-          <TooltipContent side="right" className="text-[12px] font-semibold">
+          <TooltipContent side="right" className="text-xs font-semibold">
             {isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           </TooltipContent>
         </Tooltip>
 
         {/* ── Org switcher ── */}
-        <div className={`${isCollapsed ? "px-2 py-3 flex justify-center" : "px-3 pt-4 pb-3"}`}>
+        <div className={`${isCollapsed ? "px-2 py-4 flex justify-center" : "px-4 pt-5 pb-3"}`}>
           <OrgSwitcher
             currentOrg={currentOrg}
             organizations={organizations}
@@ -454,17 +446,17 @@ export default function WorkspaceSidebar() {
           />
         </div>
 
-        <Separator className="bg-[#DFE1E6] mx-3 w-auto" />
+        <Separator className="bg-border/60 mx-4 w-auto" />
 
         {/* ── Scrollable body ── */}
         <ScrollArea className="flex-1 overflow-hidden">
-          <div className="px-2 pb-4">
+          <div className="px-2 pb-6 pt-2">
 
             {/* Workspace nav */}
             {!isCollapsed && <SectionLabel>Workspace</SectionLabel>}
-            {isCollapsed  && <div className="h-3" />}
+            {isCollapsed  && <div className="h-4" />}
 
-            <div className="space-y-0.5">
+            <div className="space-y-1 mx-2">
               {navItems.map(({ key, icon, label, to }) => (
                 <NavItem
                   key={key}
@@ -478,8 +470,8 @@ export default function WorkspaceSidebar() {
             </div>
 
             {/* Projects */}
-            <div className={`${isCollapsed ? "mt-3" : "mt-1"}`}>
-              {isCollapsed && <Separator className="bg-[#DFE1E6] mb-2 mx-1" />}
+            <div className={`${isCollapsed ? "mt-4" : "mt-2"}`}>
+              {isCollapsed && <Separator className="bg-border/60 mb-3 mx-2" />}
               <ProjectsSection
                 projectsList={projectsList}
                 orgSlug={orgSlug}
@@ -492,7 +484,7 @@ export default function WorkspaceSidebar() {
         </ScrollArea>
 
         {/* ── User menu ── */}
-        <div className={`border-t border-[#DFE1E6] ${isCollapsed ? "px-2 py-3 flex justify-center" : "px-3 py-3"}`}>
+        <div className={`border-t border-border w-full ${isCollapsed ? "px-2 py-3 flex justify-center" : "p-3 pt-3"}`}>
           <UserMenu
             user={user}
             orgSlug={orgSlug}

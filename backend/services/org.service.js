@@ -772,7 +772,7 @@ const acceptInvitation = async (userId, token) => {
     );
   }
 
-  const membershipExists = await prisma.orgMember.findFirst({
+  const activeMembership = await prisma.orgMember.findFirst({
     where: {
       orgId: invitation.orgId,
       userId,
@@ -781,19 +781,42 @@ const acceptInvitation = async (userId, token) => {
     select: { id: true },
   });
 
-  if (membershipExists) {
+  if (activeMembership) {
     throw new AppError('You are already a member of this organization.', 409, 'ALREADY_MEMBER');
   }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.orgMember.create({
-      data: {
+  const priorMembership = await prisma.orgMember.findUnique({
+    where: {
+      orgId_userId: {
         orgId: invitation.orgId,
         userId,
-        role: invitation.role,
-        invitedBy: invitation.invitedBy,
       },
-    });
+    },
+    select: { id: true, removedAt: true },
+  });
+
+  await prisma.$transaction(async (tx) => {
+    if (priorMembership?.removedAt) {
+      await tx.orgMember.update({
+        where: { id: priorMembership.id },
+        data: {
+          role: invitation.role,
+          invitedBy: invitation.invitedBy,
+          joinedAt: new Date(),
+          removedAt: null,
+          removedBy: null,
+        },
+      });
+    } else {
+      await tx.orgMember.create({
+        data: {
+          orgId: invitation.orgId,
+          userId,
+          role: invitation.role,
+          invitedBy: invitation.invitedBy,
+        },
+      });
+    }
 
     await tx.orgInvitation.update({
       where: { id: invitation.id },
